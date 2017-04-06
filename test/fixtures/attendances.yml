@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  tutorial: one
+  attended: false
+  tut_date: 2017-04-06
+  tut_time: 2017-04-06 02:27:43
+
+two:
+  user: two
+  tutorial: two
+  attended: false
+  tut_date: 2017-04-06
+  tut_time: 2017-04-06 02:27:43
