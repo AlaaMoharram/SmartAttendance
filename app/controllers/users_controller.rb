@@ -1,16 +1,22 @@
 class UsersController < ApplicationController
 
+	skip_before_action :verify_authenticity_token
 	before_action :set_user_by_id, only: [:update]
 	before_action :set_user_by_username, only: [:getActiveTutorial, :getAllTutorials, :getTutAttendances]
 
 	def index
 		@allUsers = User.all
-		render json: @allUsers
+		if @allUsers
+			render json: @allUsers
+		else
+			render json: {}
+		end
+
 	end
 
 	# create a new user
 	def create
-		@user = User.create(user_params)
+		@user = User.new(user_params)
 		if @user.save
 			render json: @user, status: :created
 		else
@@ -30,13 +36,21 @@ class UsersController < ApplicationController
 	# get the current active tutorial for the given student
 	def getActiveTutorial
 		@activeTutorial = @user.tutorials.where(:isActive => true).take
-		render json: @activeTutorial
+		if @activeTutorial
+			render json: @activeTutorial
+		else
+			render json: {}
+		end
 	end
 
 	# get all tutorials for a given user
 	def getAllTutorials
 		@allTutorials = @user.tutorials
-		render json: @allTutorials
+		if @allTutorials
+			render json: @allTutorials
+		else
+			render json: {}
+		end
 	end
 
 	# get all attendances for a certain student for a certain tutorial
@@ -49,7 +63,7 @@ class UsersController < ApplicationController
 	private 
 
 	def user_params
-		params.require(:user).permit(:name, :username, :password, :role)
+		params.permit(:name, :username, :password, :role)
 	end
 
 	def set_user_by_id

@@ -1,10 +1,21 @@
 class RoomsController < ApplicationController
 
-	before_action :set_room_by_id, only: [:getRoomID, :getBeacons]
+	skip_before_action :verify_authenticity_token
+
+
+	# get all rooms
+	def index
+		@allRooms = Room.all
+		if @allRooms
+			render json: @allRooms
+		else
+			render json: {}
+		end
+	end
 
 	# create a new room
 	def create
-		@room = Room.create(room_params)
+		@room = Room.new(room_params)
 		if @room.save
 			render json: @room, status: :created
 		else
@@ -15,7 +26,7 @@ class RoomsController < ApplicationController
 	# get all beacons for a certain room
 	def getBeacons
 		@room = Room.where(:name => params[:name]).take
-		@beacons = @room.beacons
+		@beacons = @room.beacon.all
 		render json: @beacons
 	end
 
@@ -23,11 +34,7 @@ class RoomsController < ApplicationController
 	private
 
 	def room_params
-		params.require(:room).permit(:name)
-	end
-
-	def set_room_by_id
-		@room = Room.find(params[:id])
+		params.permit(:name)
 	end
 
 end

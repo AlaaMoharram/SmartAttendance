@@ -1,12 +1,23 @@
 class AttendancesController < ApplicationController
 
+	skip_before_action :verify_authenticity_token
 	before_action :set_attendance_by_id, only: [:update]
 	before_action :set_user, only: [:getAllForStudent]
 	before_action :set_tutorial, only: [:getAllForTutorial]
+
+	# get all attendances
+	def index
+		@allAttendances = Attendance.all
+		if @allAttendances
+			render json: @allAttendances
+		else
+			render json: {}
+		end
+	end
 	
 	# create a new attendance record
 	def create
-		@attendance = Attendance.create(attendance_params)
+		@attendance = Attendance.new(attendance_params)
 		if @attendance.save
 			render json: @attendance, status: :created
 		else
@@ -20,6 +31,7 @@ class AttendancesController < ApplicationController
 			head :no_content
 		else
 			render json: @attendance.errors, status: :unprocessable_entity
+		end
 	end
 
 
@@ -27,7 +39,7 @@ class AttendancesController < ApplicationController
 	private 
 
 	def attendance_params
-		params.require(:attendance).permit(:user_id, :tutorial_id, :attended, :tut_date, :tut_time)
+		params.permit(:user_id, :tutorial_id, :attended, :tut_date, :tut_time)
 	end
 
 	def set_attendance_by_id
