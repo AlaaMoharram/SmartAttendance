@@ -1,21 +1,27 @@
 Rails.application.routes.draw do
+
+  # get '/login' => 'sessions#new'
+  # post '/login' => 'sessions#create'
+  # get '/logout' => 'sessions#destroy'
   
   # users controller
-  put '/users/:id' => 'users#update'
+  get '/users' => 'users#index'
+  put '/users/:user_id' => 'users#update'
   post '/users' => 'users#create'
-  get '/users/:id/tutorials/:id' => 'users#getActiveTutorial'
-  get '/users.:id/tutorials' => 'users#getAllTutorials'
+  get '/users/:username/tutorial' => 'users#getActiveTutorial'
+  get '/users/:username/tutorials' => 'users#getAllTutorials'
+  get '/users/:username/tutorials/:name/attendances' => 'users#getTutAttendances'
 
   # tutorials controller
   post '/tutorials' => 'tutorials#create'
-  put '/tutorials/:id' => 'tutorials#update'
-  get '/tutorials/:id/rooms/:id' => 'tutorials#findRoom'
-  get '/tutorials/:id/users' => 'tutorials#getAllStudents'
+  put '/tutorials/:tutorial_id' => 'tutorials#update'
+  get '/tutorials/:name/room' => 'tutorials#findRoom'
+  get '/tutorials/:name/students' => 'tutorials#getAllStudents'
+  get '/tutorials/:name/attendances' => 'tutorials#getAllAttendances'
 
   # rooms controller
   post '/rooms' => 'rooms#create'
-  get '/rooms/:id' => 'rooms#getRoomID'
-  get 'rooms/:id/beacons' => 'rooms#getBeacons'
+  get 'rooms/:name/beacons' => 'rooms#getBeacons'
 
   # beacons controller
   post '/beacons' => 'beacons#create'
@@ -23,7 +29,6 @@ Rails.application.routes.draw do
   # attendances controller
   post '/attendances' => 'attendances#create'
   put '/attendances/:id' => 'attendances#update'
-  get '/attendances/:user_id' => 'attendances#getAllForStudent'
-  get '/attendances/:tutorial_id' => 'attendances#getAllForTutorial'
+
 
 end

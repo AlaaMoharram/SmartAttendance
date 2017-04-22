@@ -1,6 +1,8 @@
 class AttendancesController < ApplicationController
 
-	before_action :set_attendance, only: [:update]
+	before_action :set_attendance_by_id, only: [:update]
+	before_action :set_user, only: [:getAllForStudent]
+	before_action :set_tutorial, only: [:getAllForTutorial]
 	
 	# create a new attendance record
 	def create
@@ -20,17 +22,7 @@ class AttendancesController < ApplicationController
 			render json: @attendance.errors, status: :unprocessable_entity
 	end
 
-	# get all attendance records for a certain student
-	def getAllForStudent
-		@allAttendances = Attendance.where(:user_id => params[:user_id]).all
-		render json: @allAttendances
-	end
 
-	# get all attendance records for a certain tutorial
-	def getAllForTutorial
-		@allAttendances = Attendance.where(:tutorial_id => params[:tutorial_id], :tut_date => params[:tut_date], :tut_time => params[:tut_time]).all
-		render json: @allAttendances
-	end
 
 	private 
 
@@ -38,7 +30,7 @@ class AttendancesController < ApplicationController
 		params.require(:attendance).permit(:user_id, :tutorial_id, :attended, :tut_date, :tut_time)
 	end
 
-	def set_attendance
+	def set_attendance_by_id
 		@attendance = Attendance.find(params[:id])
 	end
 

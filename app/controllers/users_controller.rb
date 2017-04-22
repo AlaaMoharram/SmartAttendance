@@ -1,6 +1,12 @@
 class UsersController < ApplicationController
 
-	before_action :set_user, only: [:update, :getActiveTutorial]
+	before_action :set_user_by_id, only: [:update]
+	before_action :set_user_by_username, only: [:getActiveTutorial, :getAllTutorials, :getTutAttendances]
+
+	def index
+		@allUsers = User.all
+		render json: @allUsers
+	end
 
 	# create a new user
 	def create
@@ -32,6 +38,12 @@ class UsersController < ApplicationController
 		render json: @allTutorials
 	end
 
+	# get all attendances for a certain student for a certain tutorial
+	def getTutAttendances
+		@tutorial = @user.tutorials.where(:name => params[:name]) 
+		@attendances = @tutorial.attendances.all
+	end
+
 
 	private 
 
@@ -39,8 +51,12 @@ class UsersController < ApplicationController
 		params.require(:user).permit(:name, :username, :password, :role)
 	end
 
-	def set_user
+	def set_user_by_id
 		@user = User.find(params[:id])
+	end
+
+	def set_user_by_username
+		@user = User.where(:username => params[:username])
 	end
 
 end

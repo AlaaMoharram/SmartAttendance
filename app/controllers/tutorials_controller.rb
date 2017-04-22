@@ -1,6 +1,7 @@
 class TutorialsController < ApplicationController
 
-	before_action :set_tutorial, only: [:update, :findRoom]
+	before_action :set_tutorial_by_name, only: [:findRoom, :getAllStudents, :getAllAttendances]
+	before_action :set_tutorial_by_id, only: [:update]
 
 	# create a new tutorial 
 	def create
@@ -21,7 +22,7 @@ class TutorialsController < ApplicationController
 	end
 
 	# find the room for the given tutorial
-	def findRoom
+	def findRooms
 		@room = @tutorial.room
 		render json: @room
 	end
@@ -32,13 +33,24 @@ class TutorialsController < ApplicationController
 		render json: @allStudents
 	end
 
+	# get all attendance records for a certain tutorial
+	def getAllAttendances
+		@allAttendances = @tutorial.attendances.all
+		render json: @allAttendances
+	end
+
+
 	private 
 
 	def tut_params
 		params.require(:tutorial).permit(:name, :isActive, :room_id)
 	end
 
-	def set_tutorial
+	def set_tutorial_by_name
+		@tutorial = Tutorial.where(:name => params[:name])
+	end
+
+	def set_tutorial_by_id
 		@tutorial = Tutorial.find(params[:id])
 	end
 
