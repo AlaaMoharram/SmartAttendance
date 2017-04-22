@@ -8,6 +8,7 @@ public class Attendance {
     Integer tutorial_id;
     boolean attended;
     String tut_date;
+    Integer id;
 
     public String getTut_time() {
         return tut_time;
