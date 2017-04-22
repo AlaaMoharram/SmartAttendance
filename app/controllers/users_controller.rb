@@ -1,7 +1,7 @@
 class UsersController < ApplicationController
 
 	before_action :set_user_by_id, only: [:update]
-	before_action :set_user_by_username, only: [:getActiveTutorial, :getAllTutorials]
+	before_action :set_user_by_username, only: [:getActiveTutorial, :getAllTutorials, :getTutAttendances]
 
 	# create a new user
 	def create
@@ -31,6 +31,12 @@ class UsersController < ApplicationController
 	def getAllTutorials
 		@allTutorials = @user.tutorials
 		render json: @allTutorials
+	end
+
+	# get all attendances for a certain student for a certain tutorial
+	def getTutAttendances
+		@tutorial = @user.tutorials.where(:name => params[:name]) 
+		@attendances = @tutorial.attendances.all
 	end
 
 

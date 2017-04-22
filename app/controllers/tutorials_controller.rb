@@ -1,6 +1,6 @@
 class TutorialsController < ApplicationController
 
-	before_action :set_tutorial_by_name, only: [:findRoom, :getAllStudents]
+	before_action :set_tutorial_by_name, only: [:findRoom, :getAllStudents, :getAllAttendances]
 	before_action :set_tutorial_by_id, only: [:update]
 
 	# create a new tutorial 
@@ -32,6 +32,13 @@ class TutorialsController < ApplicationController
 		@allStudents = @tutorial.users.where(:role => 0)
 		render json: @allStudents
 	end
+
+	# get all attendance records for a certain tutorial
+	def getAllAttendances
+		@allAttendances = @tutorial.attendances.all
+		render json: @allAttendances
+	end
+
 
 	private 
 
