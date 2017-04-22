@@ -24,6 +24,7 @@ class UsersController < ApplicationController
 			head :no_content
 		else
 			render json: @user.errors, status: :unprocessable_entity
+		end
 	end
 
 	# get the current active tutorial for the given student
