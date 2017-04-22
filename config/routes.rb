@@ -1,8 +1,8 @@
 Rails.application.routes.draw do
 
-  get '/login' => 'sessions#new'
-  post '/login' => 'sessions#create'
-  get '/logout' => 'sessions#destroy'
+  # get '/login' => 'sessions#new'
+  # post '/login' => 'sessions#create'
+  # get '/logout' => 'sessions#destroy'
   
   # users controller
   put '/users/:user_id' => 'users#update'
@@ -18,8 +18,7 @@ Rails.application.routes.draw do
 
   # rooms controller
   post '/rooms' => 'rooms#create'
-  get '/rooms/:id' => 'rooms#getRoomID'
-  get 'rooms/:id/beacons' => 'rooms#getBeacons'
+  get 'rooms/:name/beacons' => 'rooms#getBeacons'
 
   # beacons controller
   post '/beacons' => 'beacons#create'

@@ -1,6 +1,6 @@
 class RoomsController < ApplicationController
 
-	before_action :set_room, only: [:getRoomID, :getBeacons]
+	before_action :set_room_by_id, only: [:getRoomID, :getBeacons]
 
 	# create a new room
 	def create
@@ -12,16 +12,10 @@ class RoomsController < ApplicationController
 		end 
 	end
 
-	# find a room's ID given its name
-	def getRoomID
-		@room = Room.where(:name => params[:name]).take
-		render json: @room
-	end
-
 	# get all beacons for a certain room
 	def getBeacons
-		@room = Room.where(:name => params[:name]).all
-		@beacons = @room.beacon
+		@room = Room.where(:name => params[:name]).take
+		@beacons = @room.beacons
 		render json: @beacons
 	end
 
@@ -32,7 +26,7 @@ class RoomsController < ApplicationController
 		params.require(:room).permit(:name)
 	end
 
-	def set_room
+	def set_room_by_id
 		@room = Room.find(params[:id])
 	end
 
