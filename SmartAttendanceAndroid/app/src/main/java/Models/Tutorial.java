@@ -6,6 +6,7 @@ package Models;
 public class Tutorial {
     String name;
     boolean isActive;
+    Integer room_id;
 
     public Integer getRoom_id() {
         return room_id;
@@ -31,5 +32,4 @@ public class Tutorial {
         this.isActive = isActive;
     }
 
-    Integer room_id;
 }
