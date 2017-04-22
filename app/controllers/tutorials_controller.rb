@@ -1,7 +1,7 @@
 class TutorialsController < ApplicationController
 
 	skip_before_action :verify_authenticity_token
-	before_action :set_tutorial_by_name, only: [:findRoom, :getAllStudents, :getAllAttendances]
+	before_action :set_tutorial_by_name, only: [:findRoom, :getAllStudents, :getAllAttendances, :show]
 	before_action :set_tutorial_by_id, only: [:update]
 
 	def index
@@ -26,7 +26,6 @@ class TutorialsController < ApplicationController
 
 	# get a certain tutorial
 	def show
-		@tutorial=Tutorial.find(params[:id])
 		render json: @tutorial
 	end
 

@@ -6,15 +6,16 @@ Rails.application.routes.draw do
   
   # users controller
   get '/users' => 'users#index'
-  put '/users/:user_id' => 'users#update'
+  get '/users/:username' => 'users#show', constraints: { username: /[0-z\.]+/}
+  put '/users/:id' => 'users#update'
   post '/users' => 'users#create'
-  get '/users/:username/tutorial' => 'users#getActiveTutorial', constraints: { username: /[0-z\.]+/}
-  get '/users/:username/tutorials' => 'users#getAllTutorials', constraints: { username: /[0-z\.]+/}
+  get '/users/:username/activeTutorial' => 'users#getActiveTutorial', constraints: { username: /[0-z\.]+/}
+  get '/users/:username/allTutorials' => 'users#getAllTutorials', constraints: { username: /[0-z\.]+/}
   get '/users/:username/tutorials/:name/attendances' => 'users#getTutAttendances', constraints: { username: /[0-z\.]+/}
 
   # tutorials controller
   get '/tutorials' => 'tutorials#index'
-  get '/tutorials/:id' => 'tutorials#show'
+  get '/tutorials/:name' => 'tutorials#show'
   post '/tutorials' => 'tutorials#create'
   put '/tutorials/:id' => 'tutorials#update'
   get '/tutorials/:name/room' => 'tutorials#findRoom'
