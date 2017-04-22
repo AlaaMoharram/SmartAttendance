@@ -5,6 +5,7 @@ Rails.application.routes.draw do
   # get '/logout' => 'sessions#destroy'
   
   # users controller
+  get '/users' => 'users#index'
   put '/users/:user_id' => 'users#update'
   post '/users' => 'users#create'
   get '/users/:username/tutorial' => 'users#getActiveTutorial'

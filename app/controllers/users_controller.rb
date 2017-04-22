@@ -3,6 +3,11 @@ class UsersController < ApplicationController
 	before_action :set_user_by_id, only: [:update]
 	before_action :set_user_by_username, only: [:getActiveTutorial, :getAllTutorials, :getTutAttendances]
 
+	def index
+		@allUsers = User.all
+		render json: @allUsers
+	end
+
 	# create a new user
 	def create
 		@user = User.create(user_params)
