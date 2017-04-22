@@ -27,6 +27,11 @@
             android:label="@string/title_activity_attendance_view"
             android:theme="@style/AppTheme.NoActionBar" >
         </activity>
+        <activity
+            android:name=".TAActivity"
+            android:label="@string/title_activity_ta"
+            android:theme="@style/AppTheme.NoActionBar" >
+        </activity>
     </application>
 
 </manifest>
