@@ -13,4 +13,6 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="title_activity_beacon_detector">BeaconDetector</string>
+    <string name="title_activity_attendance_view">AttendanceView</string>
 </resources>
