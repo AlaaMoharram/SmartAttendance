@@ -7,6 +7,15 @@ public class Tutorial {
     String name;
     boolean isActive;
     Integer room_id;
+    Integer tutorial_id;
+
+    public Integer getTutorial_id() {
+        return tutorial_id;
+    }
+
+    public void setTutorial_id(Integer tutorial_id) {
+        this.tutorial_id = tutorial_id;
+    }
 
     public Integer getRoom_id() {
         return room_id;

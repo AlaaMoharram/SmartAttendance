@@ -7,7 +7,7 @@ public class User {
     String name;
     String username;
     String password;
-    int user_id;
+    Integer user_id;
 
     public int getUser_id() {
         return user_id;
