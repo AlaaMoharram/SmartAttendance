@@ -59,5 +59,5 @@ public interface OurAPI {
 
     @FormUrlEncoded
     @POST ("/attendances")
-    void createAttendance(@Field("attendance[user_id]") String id, @Field("attendance[tutorial_id]") String tutorialId, @Field("attendance[attended]") String attended, @Field("attendance[tut_date]"), Callback<Attendance> callback);
+    void createAttendance(@Field("attendance[user_id]") String id, @Field("attendance[tutorial_id]") String tutorialId, @Field("attendance[attended]") String attended, @Field("attendance[tut_date]") String date, Callback<Attendance> callback);
 }
