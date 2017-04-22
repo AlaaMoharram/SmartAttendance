@@ -7,19 +7,22 @@ import Models.Beacon;
 import Models.Room;
 import Models.Tutorial;
 import Models.User;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.http.Field;
-import retrofit2.http.FormUrlEncoded;
-import retrofit2.http.GET;
-import retrofit2.http.POST;
-import retrofit2.http.PUT;
-import retrofit2.http.Path;
+import retrofit.Callback;
+import retrofit.http.Field;
+import retrofit.http.FormUrlEncoded;
+import retrofit.http.GET;
+import retrofit.http.POST;
+import retrofit.http.PUT;
+import retrofit.http.Path;
 
 public interface OurAPI {
 
     //users
+    @GET("/users/{user_id}")
+    void getUser(@Path("user_id") String id, Callback<User> callback);
 
+    @GET("/users/")
+    void getUsers(Callback<List<User>> callback);
     @GET("/users/{username}/tutorial/")
     void getActiveTutorial(@Path("username") String id, Callback<User> callback);
 

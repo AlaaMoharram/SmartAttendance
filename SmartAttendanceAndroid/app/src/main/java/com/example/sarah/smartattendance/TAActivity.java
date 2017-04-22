@@ -6,14 +6,22 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 
-public class TAActivity extends AppCompatActivity {
+import java.util.List;
 
+import Models.User;
+import retrofit.Callback;
+import retrofit.RestAdapter;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
+
+public class TAActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,7 +69,21 @@ public class TAActivity extends AppCompatActivity {
     private View.OnClickListener buttonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v){
-            startActivity(new Intent(getApplicationContext(), AttendanceView.class));
+            RestAdapter adapter = new RestAdapter.Builder().setEndpoint(getResources().getString(R.string.ENDPOINT)).build();
+
+            OurAPI api = adapter.create(OurAPI.class);
+            api.getUsers(new Callback<List<User>>() {
+                @Override
+                public void success(List<User> users, Response response) {
+                    Log.d("Success", users.get(0).getName());
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+                    Log.d("Failure", error.toString());
+//                    startActivity(new Intent(getApplicationContext(), AttendanceView.class));
+                }
+            });
         }
     };
 }
