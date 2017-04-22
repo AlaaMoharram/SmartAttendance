@@ -1,16 +1,20 @@
 Rails.application.routes.draw do
+
+  get '/login' => 'sessions#new'
+  post '/login' => 'sessions#create'
+  get '/logout' => 'sessions#destroy'
   
   # users controller
-  put '/users/:id' => 'users#update'
+  put '/users/:user_id' => 'users#update'
   post '/users' => 'users#create'
-  get '/users/:id/tutorials/:id' => 'users#getActiveTutorial'
-  get '/users.:id/tutorials' => 'users#getAllTutorials'
+  get '/users/:user_id/tutorial' => 'users#getActiveTutorial'
+  get '/users/:user_id/tutorials' => 'users#getAllTutorials'
 
   # tutorials controller
   post '/tutorials' => 'tutorials#create'
-  put '/tutorials/:id' => 'tutorials#update'
-  get '/tutorials/:id/rooms/:id' => 'tutorials#findRoom'
-  get '/tutorials/:id/users' => 'tutorials#getAllStudents'
+  put '/tutorials/:tutorial_id' => 'tutorials#update'
+  get '/tutorials/:name/room' => 'tutorials#findRoom'
+  get '/tutorials/:name/students' => 'tutorials#getAllStudents'
 
   # rooms controller
   post '/rooms' => 'rooms#create'
