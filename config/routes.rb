@@ -7,8 +7,8 @@ Rails.application.routes.draw do
   # users controller
   put '/users/:user_id' => 'users#update'
   post '/users' => 'users#create'
-  get '/users/:user_id/tutorial' => 'users#getActiveTutorial'
-  get '/users/:user_id/tutorials' => 'users#getAllTutorials'
+  get '/users/:username/tutorial' => 'users#getActiveTutorial'
+  get '/users/:username/tutorials' => 'users#getAllTutorials'
 
   # tutorials controller
   post '/tutorials' => 'tutorials#create'
