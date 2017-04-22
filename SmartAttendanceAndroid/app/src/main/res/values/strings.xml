@@ -15,4 +15,5 @@
     </string>
     <string name="title_activity_beacon_detector">BeaconDetector</string>
     <string name="title_activity_attendance_view">AttendanceView</string>
+    <string name="title_activity_ta">TAActivity</string>
 </resources>
