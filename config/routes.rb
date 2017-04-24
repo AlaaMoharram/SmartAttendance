@@ -17,8 +17,7 @@ Rails.application.routes.draw do
   get '/tutorials' => 'tutorials#index'
   get '/tutorials/:name' => 'tutorials#show'
   post '/tutorials' => 'tutorials#create'
-  put '/tutorials/:name/updateStatus' => 'tutorials#updateStatus'
-  put '/tutorials/:name/updateRoom' => 'tutorials#updateRoom', constraints: { name: /[0-z\.]+/}
+  put '/tutorials/:name/update' => 'tutorials#update'
   get '/tutorials/:name/room' => 'tutorials#findRoom'
   get '/tutorials/:name/students' => 'tutorials#getAllStudents'
   get '/tutorials/:name/attendances' => 'tutorials#getAllAttendances'

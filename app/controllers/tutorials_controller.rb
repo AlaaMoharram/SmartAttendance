@@ -1,7 +1,7 @@
 class TutorialsController < ApplicationController
 
 	skip_before_action :verify_authenticity_token
-	before_action :set_tutorial_by_name, only: [:updateStatus, :updateRoom, :findRoom, :getAllStudents, :getAllAttendances, :show]
+	before_action :set_tutorial_by_name, only: [:update, :findRoom, :getAllStudents, :getAllAttendances, :show]
 
 	def index
 		@allTutorials = Tutorial.all
@@ -28,21 +28,9 @@ class TutorialsController < ApplicationController
 		render json: @tutorial
 	end
 
-	# change the active status for a specific tutorial
-	def updateStatus
+	#update a specific tutorial
+	def update
 		if @tutorial.update(tut_params)
-			head :no_content
-		else
-			render json: @tutorial.errors, status: :unprocessable_entity
-		end 
-	end
-
-	# update the room for a specific tutorial
-	# takes tutorial name and room name
-	def updateRoom
-		@room = Room.where(:name => params[:room_name]).first
-		@tutorial.room_id = @room.id
-		if @tutorial.save
 			head :no_content
 		else
 			render json: @tutorial.errors, status: :unprocessable_entity
