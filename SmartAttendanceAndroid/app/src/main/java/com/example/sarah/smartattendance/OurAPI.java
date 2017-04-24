@@ -37,9 +37,8 @@ public interface OurAPI {
     //tutorials
 
     @FormUrlEncoded
-    @PUT("/tutorials/{tutorial_id}")
-    void updateTutorial(@Path("tutorial_id") String id, @Field("tutorial[name]") String name,
-    @Field("tutorial[isActive]") boolean isActive,
+    @PUT("/tutorials/{name}/updateStatus")
+    void updateTutorialStatus(@Path("name") String tutorialName, @Field("isActive") boolean isActive,
             Callback<Tutorial> callback);
 
     @GET("/tutorials/{name}/room")
@@ -50,6 +49,11 @@ public interface OurAPI {
 
     @GET("/tutorials/{name}/attendances")
     void getAllAttendances(@Path("name") String name, Callback<List<Attendance>> callback);
+
+    @FormUrlEncoded
+    @PUT("/tutorials/{name}/updateRoom")
+    void updateTutorialRoom(@Path("name") String tutorialName, @Field("room_id") String roomName,
+                            Callback<Room> callback);
 
 
     //room
@@ -63,9 +67,9 @@ public interface OurAPI {
 
     @FormUrlEncoded
     @PUT("/attendances/{id}")
-    void updateAttendance(@Path("id") String id, @Field("attendance[attended]") String attended, Callback<Attendance> callback);
+    void updateAttendance(@Path("id") String id, @Field("attended") String attended, Callback<Attendance> callback);
 
     @FormUrlEncoded
     @POST ("/attendances")
-    void createAttendance(@Field("attendance[user_id]") String id, @Field("attendance[tutorial_id]") String tutorialId, @Field("attendance[attended]") String attended, @Field("attendance[tut_date]") String date, Callback<Attendance> callback);
+    void createAttendance(@Field("user_id") String id, @Field("tutorial_id") String tutorialId, @Field("attended") String attended, @Field("tut_date") String date, Callback<Attendance> callback);
 }

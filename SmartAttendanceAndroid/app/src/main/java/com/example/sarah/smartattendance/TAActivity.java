@@ -90,8 +90,10 @@ public class TAActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 // your code here
-                String roomName = ((Room)(parentView.getItemAtPosition(position))).getName();
-                editor.putString("SelectedRoom", roomName).commit();
+                Room room = (Room) parentView.getItemAtPosition(position);
+                String roomName = room.getName();
+                String roomID = String.valueOf(room.getRoom_id());
+                editor.putString("SelectedRoom", roomID).commit();
             }
 
             @Override
@@ -110,9 +112,33 @@ public class TAActivity extends AppCompatActivity {
         public void onClick(View v){
             RestAdapter adapter = new RestAdapter.Builder().setEndpoint(getResources().getString(R.string.ENDPOINT)).build();
             OurAPI api = adapter.create(OurAPI.class);
-            Log.d("here", "here");
-            Log.d("Selected Tutorial", settings.getString("ActivateTutorial", ""));
+            String roomName = settings.getString("SelectedRoom", "");
+            String tutorialName = settings.getString("ActivateTutorial", "");
+//            Log.d("here", "here");
+//            Log.d("Selected Tutorial", settings.getString("ActivateTutorial", ""));
             Log.d("SelectedRoom", settings.getString("SelectedRoom", ""));
+            api.updateTutorialStatus(tutorialName, true, new Callback<Tutorial>() {
+                @Override
+                public void success(Tutorial tutorial, Response response) {
+//                    Log.d("Success", tutorial.getName());
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+
+                }
+            });
+//            api.updateTutorialRoom(tutorialName, roomName, new Callback<Room>() {
+//                @Override
+//                public void success(Room room, Response response) {
+//                    Log.d("Name", room.getName());
+//                }
+//
+//                @Override
+//                public void failure(RetrofitError error) {
+//
+//                }
+//            });
         }
     };
 }
