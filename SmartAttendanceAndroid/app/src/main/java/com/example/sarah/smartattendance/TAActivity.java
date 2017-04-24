@@ -1,5 +1,6 @@
 package com.example.sarah.smartattendance;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +11,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +46,7 @@ public class TAActivity extends AppCompatActivity {
         api.getAllTutorials("sarah", new Callback<List<Tutorial>>() {
             @Override
             public void success(List<Tutorial> tutorials, Response response) {
-                Log.d("Success", tutorials.get(tutorials.size() - 1).getName());
+//                Log.d("Success", tutorials.get(tutorials.size() - 1).getName());
                 ArrayAdapter<Tutorial> adapterTutorials = new SimpleTutorialListAdapter(getApplicationContext(), tutorials);
                 dropdownTutorial.setAdapter(adapterTutorials);
 
@@ -52,7 +54,7 @@ public class TAActivity extends AppCompatActivity {
 
             @Override
             public void failure(RetrofitError error) {
-                Log.d("Failure", error.toString());
+//                Log.d("Failure", error.toString());
                 ArrayAdapter<Tutorial> adapterTutorials = new SimpleTutorialListAdapter(getApplicationContext(), new ArrayList<Tutorial>());
                 dropdownTutorial.setAdapter(adapterTutorials);
             }
@@ -75,14 +77,12 @@ public class TAActivity extends AppCompatActivity {
         dropdownTutorial.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                // your code here
                 String tutorialName = ((Tutorial)parentView.getItemAtPosition(position)).getName();
                 editor.putString("ActivateTutorial", tutorialName).commit();
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parentView) {
-                // your code here
             }
 
         });
@@ -90,13 +90,15 @@ public class TAActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 // your code here
-                String roomName = ((Room)(parentView.getItemAtPosition(position))).getName();
-                editor.putString("SelectedRoom", roomName).commit();
+                Room room = (Room) parentView.getItemAtPosition(position);
+                String roomName = room.getName();
+                String roomID = String.valueOf(room.getRoom_id());
+                editor.putString("SelectedRoom", roomID).commit();
+                editor.putString("SelectedRoomName", roomName).commit();
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parentView) {
-                // your code here
             }
 
         });
@@ -109,10 +111,38 @@ public class TAActivity extends AppCompatActivity {
         @Override
         public void onClick(View v){
             RestAdapter adapter = new RestAdapter.Builder().setEndpoint(getResources().getString(R.string.ENDPOINT)).build();
-            OurAPI api = adapter.create(OurAPI.class);
-            Log.d("here", "here");
-            Log.d("Selected Tutorial", settings.getString("ActivateTutorial", ""));
+            final OurAPI api = adapter.create(OurAPI.class);
+            String roomID = settings.getString("SelectedRoom", "");
+            final String roomName = settings.getString("SelectedRoomName", "");
+            final String tutorialName = settings.getString("ActivateTutorial", "");
+
             Log.d("SelectedRoom", settings.getString("SelectedRoom", ""));
+            api.updateTutorialRoom(tutorialName, roomID, new Callback<Room>() {
+                @Override
+                public void success(Room room, Response response) {
+                    api.updateTutorialStatus(tutorialName, true, new Callback<Tutorial>() {
+                        @Override
+                        public void success(Tutorial tutorial, Response response) {
+                            Context context = getApplicationContext();
+                            CharSequence text = "Tutorial: " + tutorialName + " is now Active at Room " + roomName;
+                            int duration = Toast.LENGTH_SHORT;
+
+                            Toast toast = Toast.makeText(context, text, duration);
+                            toast.show();
+                        }
+
+                        @Override
+                        public void failure(RetrofitError error) {
+
+                        }
+                    });
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+
+                }
+            });
         }
     };
 }
