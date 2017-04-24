@@ -1,7 +1,7 @@
 class TutorialsController < ApplicationController
 
 	skip_before_action :verify_authenticity_token
-	before_action :set_tutorial_by_name, only: [:updateRoom, :findRoom, :getAllStudents, :getAllAttendances, :show]
+	before_action :set_tutorial_by_name, only: [:updateStatus, :updateRoom, :findRoom, :getAllStudents, :getAllAttendances, :show]
 
 	def index
 		@allTutorials = Tutorial.all
@@ -26,6 +26,15 @@ class TutorialsController < ApplicationController
 	# get a certain tutorial
 	def show
 		render json: @tutorial
+	end
+
+	# change the active status for a specific tutorial
+	def updateStatus
+		if @tutorial.update(tut_params)
+			head :no_content
+		else
+			render json: @tutorial.errors, status: :unprocessable_entity
+		end 
 	end
 
 	# update the room for a specific tutorial
