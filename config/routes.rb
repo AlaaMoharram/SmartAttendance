@@ -17,13 +17,14 @@ Rails.application.routes.draw do
   get '/tutorials' => 'tutorials#index'
   get '/tutorials/:name' => 'tutorials#show'
   post '/tutorials' => 'tutorials#create'
-  put '/tutorials/:id' => 'tutorials#update'
+  put '/tutorials/:name/updateRoom' => 'tutorials#updateRoom', constraints: { name: /[0-z\.]+/}
   get '/tutorials/:name/room' => 'tutorials#findRoom'
   get '/tutorials/:name/students' => 'tutorials#getAllStudents'
   get '/tutorials/:name/attendances' => 'tutorials#getAllAttendances'
 
   # rooms controller
   get '/rooms' => 'rooms#index'
+  get '/rooms/:name' => 'rooms#show', constraints: { name: /[0-z\.]+/}
   post '/rooms' => 'rooms#create'
   get 'rooms/:name/beacons' => 'rooms#getBeacons', constraints: { name: /[0-z\.]+/}
 

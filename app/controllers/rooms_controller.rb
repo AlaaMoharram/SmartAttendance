@@ -13,6 +13,16 @@ class RoomsController < ApplicationController
 		end
 	end
 
+	# get a specific room
+	def show
+		@room = Room.where(:name => params[:name]).first
+		if @room
+			render json: @room
+		else
+			render json: {}
+		end
+	end
+
 	# create a new room
 	def create
 		@room = Room.new(room_params)
