@@ -7,7 +7,7 @@ public class Room {
 
     String name;
 
-    Integer room_id;
+    Integer id;
 
     public String getName() {
         return name;
@@ -18,10 +18,10 @@ public class Room {
     }
 
     public Integer getRoom_id() {
-        return room_id;
+        return id;
     }
 
-    public void setRoom_id(Integer room_id) {
-        this.room_id = room_id;
+    public void setRoom_id(Integer id) {
+        this.id = id;
     }
 }

@@ -37,7 +37,7 @@ public interface OurAPI {
     //tutorials
 
     @FormUrlEncoded
-    @PUT("/tutorials/{name}/updateStatus")
+    @PUT("/tutorials/{name}/update")
     void updateTutorialStatus(@Path("name") String tutorialName, @Field("isActive") boolean isActive,
             Callback<Tutorial> callback);
 
@@ -51,7 +51,7 @@ public interface OurAPI {
     void getAllAttendances(@Path("name") String name, Callback<List<Attendance>> callback);
 
     @FormUrlEncoded
-    @PUT("/tutorials/{name}/updateRoom")
+    @PUT("/tutorials/{name}/update")
     void updateTutorialRoom(@Path("name") String tutorialName, @Field("room_id") String roomName,
                             Callback<Room> callback);
 
