@@ -18,15 +18,17 @@ import retrofit.http.Path;
 public interface OurAPI {
 
     //users
-    @GET("/users/{user_id}")
-    void getUser(@Path("user_id") String id, Callback<User> callback);
+
+    @GET("/users/{username}")
+    void getUser(@Path("username") String id, Callback<User> callback);
 
     @GET("/users/")
     void getUsers(Callback<List<User>> callback);
-    @GET("/users/{username}/tutorial/")
-    void getActiveTutorial(@Path("username") String id, Callback<User> callback);
 
-    @GET("/users/{username}/tutorials")
+    @GET("/users/{username}/activeTutorial/")
+    void getActiveTutorial(@Path("username") String id, Callback<Tutorial> callback);
+
+    @GET("/users/{username}/allTutorials")
     void getAllTutorials(@Path("username") String id, Callback<List<Tutorial>> callback);
 
     @GET("/users/{username}/tutorials/{name}/attendances")
@@ -36,25 +38,28 @@ public interface OurAPI {
 
     @FormUrlEncoded
     @PUT("/tutorials/{tutorial_id}")
-    void updateTutorial(@Path("room_id") String id, @Field("tutorial[name]") String name,
+    void updateTutorial(@Path("tutorial_id") String id, @Field("tutorial[name]") String name,
     @Field("tutorial[isActive]") boolean isActive,
             Callback<Tutorial> callback);
 
     @GET("/tutorials/{name}/room")
     void findRoom(@Path("name") String name, Callback<Room> callback);
 
-    @GET("/tutorials/{name}/users")
+    @GET("/tutorials/{name}/students")
     void getAllStudents(@Path("name") String name, Callback<List<User>> callback);
 
     @GET("/tutorials/{name}/attendances")
-    void getAllAttendances(@Path("name") String name, Callback<List<User>> callback);
-    //room
+    void getAllAttendances(@Path("name") String name, Callback<List<Attendance>> callback);
 
-    @GET("/rooms/{name}/")
-    void getRoom(@Path("name") String name, Callback<Room> callback);
+
+    //room
+    @GET("/rooms")
+    void getAllRooms(Callback<List<Room>> callback);
 
     @GET("/rooms/{name}/beacons")
     void getBeacons(@Path("name") String name, Callback<List<Beacon>> callback);
+
+    //attendance
 
     @FormUrlEncoded
     @PUT("/attendances/{id}")

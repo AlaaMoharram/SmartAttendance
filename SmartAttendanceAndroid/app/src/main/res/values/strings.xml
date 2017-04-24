@@ -10,7 +10,7 @@
     <string name="error_field_required">This field is required</string>
     <string name="permission_rationale">"Contacts permissions are needed for providing email completions."</string>
     <string name="title_activity_beacon_detector">BeaconDetector</string>
-    <string name="title_activity_attendance_view">AttendanceView</string>
-    <string name="title_activity_ta">TAActivity</string>
+    <string name="title_activity_attendance_view">Attendance</string>
+    <string name="title_activity_ta">Admin View</string>
     <string name="ENDPOINT">http://172.20.10.2:3000/</string>
 </resources>
