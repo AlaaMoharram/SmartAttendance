@@ -34,9 +34,6 @@ public class SimpleAttendanceListAdapter extends ArrayAdapter<Attendance> {
     public View getView(int position, final View convertView, ViewGroup parent) {
         LayoutInflater inflater = LayoutInflater.from(getContext());
         final View CustomView = inflater.inflate(R.layout.custom_attendance_row, parent, false);
-//        TextView nameView = (TextView)CustomView.findViewById(R.id.name);
-//        TextView timeView = (TextView)CustomView.findViewById(R.id.time);
-//        TextView dateView = (TextView)CustomView.findViewById(R.id.date);
         TextView attendedView = (TextView)CustomView.findViewById(R.id.attended);
         TextView descView = (TextView) CustomView.findViewById(R.id.description);
         Attendance attendance = attendances.get(position);
@@ -44,10 +41,7 @@ public class SimpleAttendanceListAdapter extends ArrayAdapter<Attendance> {
         String date = attendance.getTut_date();
         String time = attendance.getTut_time();
         boolean attended = attendance.isAttended();
-        String description = tutorialName + " " + date + " " + time;
-//        nameView.setText(tutorialName);
-//        timeView.setText(time);
-//        dateView.setText(date);
+        String description = tutorialName + "  " + date + "  " + time;
         String attendendString = attended? "Attended" : "Absent";
         attendedView.setText(attendendString);
         descView.setText(description);
@@ -57,9 +51,6 @@ public class SimpleAttendanceListAdapter extends ArrayAdapter<Attendance> {
     public View getDropDownView(int position, final View convertView, ViewGroup parent) {
         LayoutInflater inflater = LayoutInflater.from(getContext());
         final View CustomView = inflater.inflate(R.layout.custom_attendance_row, parent, false);
-//        TextView nameView = (TextView)CustomView.findViewById(R.id.name);
-//        TextView timeView = (TextView)CustomView.findViewById(R.id.time);
-//        TextView dateView = (TextView)CustomView.findViewById(R.id.date);
         TextView attendedView = (TextView)CustomView.findViewById(R.id.attended);
         TextView descView = (TextView) CustomView.findViewById(R.id.description);
         Attendance attendance = attendances.get(position);
@@ -67,10 +58,7 @@ public class SimpleAttendanceListAdapter extends ArrayAdapter<Attendance> {
         String date = attendance.getTut_date();
         String time = attendance.getTut_time();
         boolean attended = attendance.isAttended();
-        String description = tutorialName + " " + date + " " + time;
-//        nameView.setText(tutorialName);
-//        timeView.setText(time);
-//        dateView.setText(date);
+        String description = tutorialName + "  " + date + "  " + time;
         String attendendString = attended? "Attended" : "Absent";
         attendedView.setText(attendendString);
         descView.setText(description);
