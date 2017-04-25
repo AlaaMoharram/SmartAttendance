@@ -1,7 +1,8 @@
 class TutorialsController < ApplicationController
 
 	skip_before_action :verify_authenticity_token
-	before_action :set_tutorial_by_name, only: [:update, :findRoom, :getAllStudents, :getAllAttendances, :show]
+	before_action :set_tutorial_by_name, only: [:update, :findRoom, :getAllStudents, :getAllAttendances, :show, :generateAttendances]
+	after_action :generateAttendances, only: [:update], if: -> {params[:isActive]==true}
 
 	def index
 		@allTutorials = Tutorial.all
@@ -53,6 +54,19 @@ class TutorialsController < ApplicationController
 	def getAllAttendances
 		@allAttendances = @tutorial.attendance.all
 		render json: @allAttendances
+	end
+
+	# once a specific tutorial is activated, generate false attendance records for associated students
+	def generateAttendances
+		@allStudents = @tutorial.users.where(:role => 0)
+		@tid = @tutorial.id
+		@currDate = Time.now.to_date.strftime("%d-%m-%Y")
+		@currTime = Time.now.to_time.strftime("%H:%M:%S")
+		@allStudents.each do |s|
+			@sid = s.id
+			@attendance = Attendance.new(:user_id => @sid, :tutorial_id => @tid, :tut_date => @currDate, :tut_time => @currTime)
+			@attendance.save
+		end
 	end
 
 
