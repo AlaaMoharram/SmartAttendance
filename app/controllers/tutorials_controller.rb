@@ -2,7 +2,7 @@ class TutorialsController < ApplicationController
 
 	skip_before_action :verify_authenticity_token
 	before_action :set_tutorial_by_name, only: [:update, :findRoom, :getAllStudents, :getAllAttendances, :show, :generateAttendances]
-	after_action :generateAttendances, only: [:update], if: -> {params[:isActive]==true}
+	# after_action :generateAttendances, only: [:update], if: -> {params[:isActive]==true}
 
 	def index
 		@allTutorials = Tutorial.all
@@ -67,6 +67,7 @@ class TutorialsController < ApplicationController
 			@attendance = Attendance.new(:user_id => @sid, :tutorial_id => @tid, :tut_date => @currDate, :tut_time => @currTime)
 			@attendance.save
 		end
+		head :no_content
 	end
 
 
