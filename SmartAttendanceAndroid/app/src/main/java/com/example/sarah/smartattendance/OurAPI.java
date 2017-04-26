@@ -52,7 +52,7 @@ public interface OurAPI {
 
     @FormUrlEncoded
     @PUT("/tutorials/{name}/update")
-    void updateTutorialRoom(@Path("name") String tutorialName, @Field("room_id") String roomName,
+    void updateTutorialRoom(@Path("name") String tutorialName, @Field("room_id") String roomID,
                             Callback<Room> callback);
 
 

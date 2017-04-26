@@ -117,7 +117,6 @@ public class TAActivity extends AppCompatActivity {
             final String roomName = settings.getString("SelectedRoomName", "");
             final String tutorialName = settings.getString("ActivateTutorial", "");
 
-            Log.d("SelectedRoom", settings.getString("SelectedRoom", ""));
             api.updateTutorialRoom(tutorialName, roomID, new Callback<Room>() {
                 @Override
                 public void success(Room room, Response response) {
@@ -130,8 +129,7 @@ public class TAActivity extends AppCompatActivity {
 
                             Toast toast = Toast.makeText(context, text, duration);
                             toast.show();
-//                            startActivity(new Intent(getApplicationContext(), AttendanceView.class));
-
+                            startActivity(new Intent(getApplicationContext(), AttendanceView.class));
 
                         }
 
