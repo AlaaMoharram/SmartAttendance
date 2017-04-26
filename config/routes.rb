@@ -18,6 +18,7 @@ Rails.application.routes.draw do
   get '/tutorials/:name' => 'tutorials#show'
   post '/tutorials' => 'tutorials#create'
   put '/tutorials/:name/update' => 'tutorials#update'
+  post '/tutorials/:name/generateAttendances' => 'tutorials#generateAttendances'
   get '/tutorials/:name/room' => 'tutorials#findRoom'
   get '/tutorials/:name/students' => 'tutorials#getAllStudents'
   get '/tutorials/:name/attendances' => 'tutorials#getAllAttendances'
