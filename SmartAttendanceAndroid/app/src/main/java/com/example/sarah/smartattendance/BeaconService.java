@@ -5,6 +5,7 @@ package com.example.sarah.smartattendance;
  */
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -30,13 +31,130 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
+import Models.Attendance;
+import Models.Tutorial;
+import retrofit.Callback;
+import retrofit.RestAdapter;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 
 public class BeaconService extends Service implements BeaconConsumer {
     private BeaconManager beaconManager;
     private static final String TAG = "BeaconReferenceApp";
+    private SharedPreferences sharedPreferences;
+    public static final String PREFS_NAME = "MyPrefs";
+    private SharedPreferences.Editor editor;
+    Beacon beacon1, beacon2;
+    private static final ScheduledExecutorService worker =
+            Executors.newSingleThreadScheduledExecutor();
+    RestAdapter adapter = new RestAdapter.Builder().setEndpoint(getResources().getString(R.string.ENDPOINT)).build();
+    final OurAPI api = adapter.create(OurAPI.class);
+    Tutorial activeTutorial;
+    void AddPoints() {
+        Runnable task = new Runnable() {
+            public void run() {
+                //check if tutorial is still active
 
+                api.getActiveTutorial(sharedPreferences.getInt("user_id",-1)+"", new Callback<Tutorial>() {
+                    @Override
+                    public void success(Tutorial tutorial, Response response) {
+                        //in case the tutorial is active check if I'm inside
+                        activeTutorial = tutorial;
+                        if (sharedPreferences.contains("tutorial_id") &&
+                                activeTutorial.getTutorial_id() == sharedPreferences.getInt("tutorial_id",-1)){
+                            //check if you're still inside!
+                            api.getBeacons(activeTutorial.getRoom_id()+"", new Callback<List<Models.Beacon>>() {
+                                @Override
+                                public void success(List<Models.Beacon> beacons, Response response) {
+                                    if(beacons.get(0).equals(beacon1) || beacons.get(1).equals(beacon1)){
+                                        if(beacons.get(1).equals(beacon2) || beacons.get(1).equals(beacon2)){
+                                            //i'm inside!
+                                            editor.putInt("points", sharedPreferences.getInt("points",0)+5);
+                                            Log.d("Points: ", sharedPreferences.getInt("points",-1)+"");
+                                            editor.commit();
+
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void failure(RetrofitError error) {
+                                    Log.d("Response", "You're a failure in life, get active tutorial");
+
+                                }
+                            });
+                        }
+                        //in case its not active add attendence only if time is 75% inside
+                        else if (sharedPreferences.contains("tutorial_id")){
+                            int startTime, endTime;
+                            //get Attendence total time
+                            api.getTutorial(activeTutorial.getTutorial_id()+"", new Callback<Tutorial>() {
+                                @Override
+                                public void success(Tutorial tutorial, Response response) {
+                                    //get total time + check if its attendence worthy
+                                    //if it is, add attendence + clear sharedPreferences
+                                    int totalTime=0;
+                                    if(sharedPreferences.getInt("points", 0) >= 75/100 * totalTime){
+                                        api.updateAttendance(sharedPreferences.getInt("user_id", 0)+"", "true", new Callback<Attendance>() {
+                                            @Override
+                                            public void success(Attendance attendance, Response response) {
+                                                editor.remove("tutorial_id");
+                                                editor.remove("points");
+                                                editor.commit();
+                                            }
+
+                                            @Override
+                                            public void failure(RetrofitError error) {
+                                                Log.d("Response", "You're a failure in life, attendance");
+                                            }
+                                        });
+                                    }
+                                }
+
+                                @Override
+                                public void failure(RetrofitError error) {
+                                    Log.d("Response", "You're a failure in life, tutorial-fetcher");
+
+                                }
+                            });
+                            //clear shared preferences
+                        }
+                        //check if we have an active tutorial now
+                        else {
+                            api.getActiveTutorial(sharedPreferences.getString("user_id", "-1"), new Callback<Tutorial>() {
+                                @Override
+                                public void success(Tutorial tutorial, Response response) {
+                                    activeTutorial = tutorial;
+                                    editor.putInt("tutorial_id", tutorial.getTutorial_id());
+                                    editor.putInt("points", 0);
+                                    editor.commit();
+                                }
+
+                                @Override
+                                public void failure(RetrofitError error) {
+                                    Log.d("Response", "You're a failure in life, active tutorial");
+
+                                }
+                            });
+                        }
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+
+                    }
+                });
+            }
+        };
+        worker.schedule(task, 5, TimeUnit.MINUTES);
+
+    }
 
     public BeaconService() {
 
@@ -49,6 +167,8 @@ public class BeaconService extends Service implements BeaconConsumer {
         beaconManager.getBeaconParsers().clear();
         beaconManager.getBeaconParsers().add(new BeaconParser().
                 setBeaconLayout("m:0-3=4c000215,i:4-19,i:20-21,i:22-23,p:24-24"));
+        sharedPreferences = getSharedPreferences(PREFS_NAME, 0);
+        editor = sharedPreferences.edit();
 
         beaconManager.bind(this);
         //TODO do something useful
@@ -77,19 +197,23 @@ public class BeaconService extends Service implements BeaconConsumer {
                                                    @Override
                                                    public void run() {
                                                        try {
-                                                           if (beacons.size() > 0) {
-                                                               String distance = beacons.iterator().next().getDistance() + " meters away.";
-                                                               final String major = beacons.iterator().next().getId2() + "";
-                                                               final String minor = beacons.iterator().next().getId3() + "";
-                                                               final int rssi = beacons.iterator().next().getRssi();
-                                                               final int power = beacons.iterator().next().getTxPower();
-                                                               final String name = beacons.iterator().next().getBluetoothName();
-                                                               Log.d("Major", major);
-                                                               Log.d("Minor", minor);
+                                                           while (beacons.size() > 0) {
+                                                               Beacon beacon = beacons.iterator().next();
+                                                               beacons.iterator().remove();
+                                                               final int rssi = beacon.getRssi();
                                                                Log.d("RSSI", rssi +"");
-                                                               Log.d("power ", power +"");
-                                                               Log.d("distance", distance);
-                                                               Log.d("Name", name);
+                                                               if(sharedPreferences.getInt("beacon1",0)!= rssi && sharedPreferences.getInt("beacon2",0)!=rssi){
+                                                                   if(sharedPreferences.getInt("beacon1",0)<rssi){
+                                                                       editor.putInt("beacon1", rssi);
+                                                                       editor.commit();
+                                                                       beacon1 = beacon;
+                                                                   }
+                                                                   else if(sharedPreferences.getInt("beacon2", 0)<rssi){
+                                                                       editor.putInt("beacon2", rssi);
+                                                                       editor.commit();
+                                                                       beacon2 = beacon;
+                                                                   }
+                                                               }
                                                            }
 
                                                        } catch (Exception e) {

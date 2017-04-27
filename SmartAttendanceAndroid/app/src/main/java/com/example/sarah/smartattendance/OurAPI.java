@@ -55,6 +55,8 @@ public interface OurAPI {
     void updateTutorialRoom(@Path("name") String tutorialName, @Field("room_id") String roomName,
                             Callback<Room> callback);
 
+    @GET("/tutorials/{tutorial_id}")
+    void getTutorial(@Path("tutorial_id") String id, Callback<Tutorial> callback);
 
     //room
     @GET("/rooms")
