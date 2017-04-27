@@ -36,9 +36,9 @@ public class AttendanceView extends AppCompatActivity {
         setContentView(R.layout.activity_attendance_view);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-//        Intent i = new Intent(this, BeaconService.class);
-//        startService(i);
+        Log.d("UPDATE", "GOING TO SERVICE ELMAFROOD");
+        Intent i = new Intent(this, BeaconService.class);
+        startService(i);
 
         RestAdapter adapter = new RestAdapter.Builder().setEndpoint(getResources().getString(R.string.ENDPOINT)).build();
         final OurAPI api = adapter.create(OurAPI.class);

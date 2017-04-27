@@ -7,14 +7,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.IBinder;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.app.Service;
-import android.app.TaskStackBuilder;
-import android.content.Context;
-
 import android.os.RemoteException;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 
@@ -25,13 +18,11 @@ import org.altbeacon.beacon.BeaconParser;
 import org.altbeacon.beacon.MonitorNotifier;
 import org.altbeacon.beacon.RangeNotifier;
 import org.altbeacon.beacon.Region;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -51,16 +42,15 @@ public class BeaconService extends Service implements BeaconConsumer {
     public static final String PREFS_NAME = "MyPrefs";
     private SharedPreferences.Editor editor;
     Beacon beacon1, beacon2;
-    private static final ScheduledExecutorService worker =
-            Executors.newSingleThreadScheduledExecutor();
-    RestAdapter adapter = new RestAdapter.Builder().setEndpoint(getResources().getString(R.string.ENDPOINT)).build();
-    final OurAPI api = adapter.create(OurAPI.class);
+    OurAPI api;
     Tutorial activeTutorial;
-    void AddPoints() {
-        Runnable task = new Runnable() {
-            public void run() {
-                //check if tutorial is still active
 
+    Timer timer = new Timer ();
+    TimerTask hourlyTask = new TimerTask () {
+        @Override
+            public void run() {
+//                //check if tutorial is still active
+                Log.d("UPDATE", "ANA HENA!!!!!!!!!!!!!!!!1");
                 api.getActiveTutorial(sharedPreferences.getInt("user_id",-1)+"", new Callback<Tutorial>() {
                     @Override
                     public void success(Tutorial tutorial, Response response) {
@@ -100,7 +90,7 @@ public class BeaconService extends Service implements BeaconConsumer {
                                     //get total time + check if its attendence worthy
                                     //if it is, add attendence + clear sharedPreferences
                                     int totalTime=0;
-                                    if(sharedPreferences.getInt("points", 0) >= 75/100 * totalTime){
+                                    if(sharedPreferences.getInt("points", 0) >= 60/100 * totalTime){
                                         api.updateAttendance(sharedPreferences.getInt("user_id", 0)+"", "true", new Callback<Attendance>() {
                                             @Override
                                             public void success(Attendance attendance, Response response) {
@@ -147,18 +137,15 @@ public class BeaconService extends Service implements BeaconConsumer {
 
                     @Override
                     public void failure(RetrofitError error) {
-
+                        Log.d("Response", "Failed fel awel");
                     }
                 });
             }
         };
-        worker.schedule(task, 5, TimeUnit.MINUTES);
+//        worker.schedule(task, 3, TimeUnit.SECONDS);
 
-    }
 
-    public BeaconService() {
 
-    }
 
 
     @Override
@@ -169,6 +156,8 @@ public class BeaconService extends Service implements BeaconConsumer {
                 setBeaconLayout("m:0-3=4c000215,i:4-19,i:20-21,i:22-23,p:24-24"));
         sharedPreferences = getSharedPreferences(PREFS_NAME, 0);
         editor = sharedPreferences.edit();
+        RestAdapter adapter = new RestAdapter.Builder().setEndpoint(getResources().getString(R.string.ENDPOINT)).build();
+         api = adapter.create(OurAPI.class);
 
         beaconManager.bind(this);
         //TODO do something useful
@@ -183,6 +172,9 @@ public class BeaconService extends Service implements BeaconConsumer {
 
     @Override
     public void onBeaconServiceConnect() {
+        Log.d("Sucess", "Service Connected");
+        timer.scheduleAtFixedRate(hourlyTask, 1, 300000);
+
         try {
             beaconManager.startRangingBeaconsInRegion(new Region("myRangingUniqueId", null, null, null));
             //beaconManager.startRangingBeaconsInRegion(new Region());
@@ -197,7 +189,7 @@ public class BeaconService extends Service implements BeaconConsumer {
                                                    @Override
                                                    public void run() {
                                                        try {
-                                                           while (beacons.size() > 0) {
+                                                           if (beacons.size() > 0) {
                                                                Beacon beacon = beacons.iterator().next();
                                                                beacons.iterator().remove();
                                                                final int rssi = beacon.getRssi();
