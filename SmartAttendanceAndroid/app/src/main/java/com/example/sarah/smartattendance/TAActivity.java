@@ -17,6 +17,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import Models.Attendance;
 import Models.Room;
 import Models.Tutorial;
 import retrofit.Callback;
@@ -30,6 +31,8 @@ public class TAActivity extends AppCompatActivity {
     public static final String PREFS_NAME = "MyPrefs";
     public static SharedPreferences.Editor editor;
     public static SharedPreferences settings;
+    public static Tutorial TutorialSelected;
+    public static String username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,10 +47,11 @@ public class TAActivity extends AppCompatActivity {
 
         settings = getSharedPreferences(PREFS_NAME, 0);
         editor = settings.edit();
-        api.getAllTutorials("sarah", new Callback<List<Tutorial>>() {
+        username = "fadwa"; //should replace that later
+
+        api.getAllTutorials(username, new Callback<List<Tutorial>>() {
             @Override
             public void success(List<Tutorial> tutorials, Response response) {
-//                Log.d("Success", tutorials.get(tutorials.size() - 1).getName());
                 ArrayAdapter<Tutorial> adapterTutorials = new SimpleTutorialListAdapter(getApplicationContext(), tutorials);
                 dropdownTutorial.setAdapter(adapterTutorials);
 
@@ -78,8 +82,9 @@ public class TAActivity extends AppCompatActivity {
         dropdownTutorial.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                String tutorialName = ((Tutorial)parentView.getItemAtPosition(position)).getName();
-                editor.putString("ActivateTutorial", tutorialName).commit();
+                TutorialSelected = (Tutorial)parentView.getItemAtPosition(position);
+                String tutorialName = TutorialSelected.getName();
+                editor.putString("SelectedTutorial", tutorialName).commit();
             }
 
             @Override
@@ -104,47 +109,15 @@ public class TAActivity extends AppCompatActivity {
 
         });
 
-        Button activateButton = (Button) findViewById(R.id.activate);
+        Button activateButton = (Button) findViewById(R.id.select_tutorial);
         activateButton.setOnClickListener(buttonClickListener);
 
     }
     private View.OnClickListener buttonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v){
-            RestAdapter adapter = new RestAdapter.Builder().setEndpoint(getResources().getString(R.string.ENDPOINT)).build();
-            final OurAPI api = adapter.create(OurAPI.class);
-            String roomID = settings.getString("SelectedRoom", "");
-            final String roomName = settings.getString("SelectedRoomName", "");
-            final String tutorialName = settings.getString("ActivateTutorial", "");
+            startActivity(new Intent(getApplicationContext(), ActivateTutorialActivity.class));
 
-            api.updateTutorialRoom(tutorialName, roomID, new Callback<Room>() {
-                @Override
-                public void success(Room room, Response response) {
-                    api.updateTutorialStatus(tutorialName, true, new Callback<Tutorial>() {
-                        @Override
-                        public void success(Tutorial tutorial, Response response) {
-                            Context context = getApplicationContext();
-                            CharSequence text = "Tutorial: " + tutorialName + " is now Active at Room " + roomName;
-                            int duration = Toast.LENGTH_SHORT;
-
-                            Toast toast = Toast.makeText(context, text, duration);
-                            toast.show();
-                            startActivity(new Intent(getApplicationContext(), AttendanceView.class));
-
-                        }
-
-                        @Override
-                        public void failure(RetrofitError error) {
-
-                        }
-                    });
-                }
-
-                @Override
-                public void failure(RetrofitError error) {
-
-                }
-            });
         }
     };
 }

@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -32,6 +33,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import Models.Attendance;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -62,6 +65,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+    public static final String PREFS_NAME = "MyPrefs";
+    public static SharedPreferences.Editor editor;
+    public static SharedPreferences settings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,7 +99,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
-        startActivity(new Intent(getApplicationContext(), TAActivity.class));
+        settings = getSharedPreferences(PREFS_NAME, 0);
+        editor = settings.edit();
+
 
 
     }
@@ -148,6 +156,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * errors are presented and no actual login attempt is made.
      */
     private void attemptLogin() {
+
         if (mAuthTask != null) {
             return;
         }
@@ -160,6 +169,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
 
+        startActivity(new Intent(getApplicationContext(), AttendanceView.class));
+        editor.putString("username", "sarah").commit();
         boolean cancel = false;
         View focusView = null;
 

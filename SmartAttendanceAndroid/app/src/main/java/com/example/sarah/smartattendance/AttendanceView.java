@@ -30,6 +30,7 @@ public class AttendanceView extends AppCompatActivity {
     public static SharedPreferences.Editor editor;
     public static SharedPreferences settings;
     public static ListView attendance;
+    public static String username;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,18 +38,19 @@ public class AttendanceView extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-//        Intent i = new Intent(this, BeaconService.class);
-//        startService(i);
+        Intent i = new Intent(this, BeaconService.class);
+        startService(i);
 
         RestAdapter adapter = new RestAdapter.Builder().setEndpoint(getResources().getString(R.string.ENDPOINT)).build();
         final OurAPI api = adapter.create(OurAPI.class);
         settings = getSharedPreferences(PREFS_NAME, 0);
         editor = settings.edit();
         attendance = (ListView) findViewById(R.id.attendanceList);
+        username = settings.getString("username", "");
 
 
         final Spinner dropdownTutorial = (Spinner)findViewById(R.id.tutorials);
-        api.getAllTutorials("sarah", new Callback<List<Tutorial>>() {
+        api.getAllTutorials(username, new Callback<List<Tutorial>>() {
             @Override
             public void success(List<Tutorial> tutorials, Response response) {
                 Log.d("Success", tutorials.get(tutorials.size() - 1).getName());
@@ -69,7 +71,7 @@ public class AttendanceView extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 final String tutorialName = ((Tutorial) parentView.getItemAtPosition(position)).getName();
                 editor.putString("SelectedTutorial", tutorialName).commit();
-                api.getTutAttendances("sarah", tutorialName , new Callback<List<Attendance>>() {
+                api.getTutAttendances(username, tutorialName , new Callback<List<Attendance>>() {
                     @Override
                     public void success(List<Attendance> attendances, Response response) {
                         ArrayAdapter<Attendance> adapterAttendances = new SimpleAttendanceListAdapter(getApplicationContext(), tutorialName, attendances);

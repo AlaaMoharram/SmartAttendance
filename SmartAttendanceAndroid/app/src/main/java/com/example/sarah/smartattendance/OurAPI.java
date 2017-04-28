@@ -26,7 +26,7 @@ public interface OurAPI {
     void getUsers(Callback<List<User>> callback);
 
     @GET("/users/{username}/activeTutorial/")
-    void getActiveTutorial(@Path("username") String id, Callback<Tutorial> callback);
+    void getActiveTutorial(@Path("username") String username, Callback<Tutorial> callback);
 
     @GET("/users/{username}/allTutorials")
     void getAllTutorials(@Path("username") String id, Callback<List<Tutorial>> callback);
@@ -54,6 +54,10 @@ public interface OurAPI {
     @PUT("/tutorials/{name}/update")
     void updateTutorialRoom(@Path("name") String tutorialName, @Field("room_id") String roomID,
                             Callback<Room> callback);
+    @FormUrlEncoded
+    @POST ("/tutorials/{name}/generateAttendances")
+    void generateAttendances(@Path("name") String tutorialName, @Field("name") String tutName, Callback<Attendance> callback);
+
 
 
     //room
