@@ -1,7 +1,7 @@
 class TutorialsController < ApplicationController
 
 	skip_before_action :verify_authenticity_token
-	before_action :set_tutorial_by_name, only: [:update, :findRoom, :getAllStudents, :getAllAttendances, :show, :generateAttendances]
+	before_action :set_tutorial_by_name, only: [:update, :findRoom, :getAllStudents, :getAllAttendances, :show, :generateAttendances, :enterEndTime]
 	# after_action :generateAttendances, only: [:update], if: -> {params[:isActive]==true}
 
 	def index
@@ -64,7 +64,21 @@ class TutorialsController < ApplicationController
 		@currTime = Time.now.to_time.strftime("%H:%M:%S")
 		@allStudents.each do |s|
 			@sid = s.id
-			@attendance = Attendance.new(:user_id => @sid, :tutorial_id => @tid, :tut_date => @currDate, :tut_time => @currTime)
+			@attendance = Attendance.new(:user_id => @sid, :tutorial_id => @tid, :tut_date => @currDate, :tut_start_time => @currTime)
+			@attendance.save
+		end
+		head :no_content
+	end
+
+	# once a tutorial is deactivated, add end time to its attendance records
+	def enterEndTime
+		@allStudents = @tutorial.users.where(:role => 0)
+		@tid = @tutorial.id
+		@endTime = Time.now.to_time.strftime("%H:%M:%S")
+		@allStudents.each do |s|
+			@sid = s.id
+			@attendance = s.attendance.last
+			@attendance.update(:tut_end_time => @endTime)
 			@attendance.save
 		end
 		head :no_content
