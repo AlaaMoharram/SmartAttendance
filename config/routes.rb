@@ -8,11 +8,11 @@ Rails.application.routes.draw do
   get '/users' => 'users#index'
   get '/users/:username' => 'users#show', constraints: { username: /[0-z\.]+/}
   put '/users/:id' => 'users#update'
-  put '/users/:username/makeAttended' => 'users#makeAttended', constraints: { username: /[0-z\.]+/}
   post '/users' => 'users#create'
   get '/users/:username/activeTutorial' => 'users#getActiveTutorial', constraints: { username: /[0-z\.]+/}
   get '/users/:username/allTutorials' => 'users#getAllTutorials', constraints: { username: /[0-z\.]+/}
   get '/users/:username/tutorials/:name/attendances' => 'users#getTutAttendances', constraints: { username: /[0-z\.]+/}
+  get '/users/:username/tutorials/:name/lastAttendance' => 'users#getLastAttendance', constraints: { username: /[0-z\.]+/}
 
   # tutorials controller
   get '/tutorials' => 'tutorials#index'
