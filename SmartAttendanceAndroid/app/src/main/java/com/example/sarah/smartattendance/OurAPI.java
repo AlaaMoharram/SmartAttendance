@@ -17,6 +17,8 @@ import retrofit.http.Path;
 
 public interface OurAPI {
 
+    //session
+
     //users
 
     @GET("/users/{username}")
@@ -34,6 +36,8 @@ public interface OurAPI {
     @GET("/users/{username}/tutorials/{name}/attendances")
     void getTutAttendances(@Path("username") String username, @Path("name") String name, Callback<List<Attendance>> callback);
 
+    @GET("/users/{username}/tutorials/{name}/lastAttendance")
+    void getLastAttendanceRecordForTutorial(@Path("username") String username, @Path("name") String tutorialName, Callback<Attendance> callback);
     //tutorials
 
     @FormUrlEncoded
@@ -62,6 +66,10 @@ public interface OurAPI {
     @GET("/tutorials/{tutorial_id}")
     void getTutorial(@Path("tutorial_id") String id, Callback<Tutorial> callback);
 
+    @FormUrlEncoded
+    @PUT("/tutorials/{name}/endTime")
+    void AddTutorialEndTime(@Path("name") String tutorialName, @Field("tut_end_time") String tutorialEndTime, Callback<Attendance> callback);
+
     //room
     @GET("/rooms")
     void getAllRooms(Callback<List<Room>> callback);
@@ -78,4 +86,6 @@ public interface OurAPI {
     @FormUrlEncoded
     @POST ("/attendances")
     void createAttendance(@Field("user_id") String id, @Field("tutorial_id") String tutorialId, @Field("attended") String attended, @Field("tut_date") String date, Callback<Attendance> callback);
+
+
 }
