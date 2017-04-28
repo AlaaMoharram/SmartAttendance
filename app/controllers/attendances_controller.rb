@@ -2,8 +2,6 @@ class AttendancesController < ApplicationController
 
 	skip_before_action :verify_authenticity_token
 	before_action :set_attendance_by_id, only: [:update]
-	before_action :set_user, only: [:getAllForStudent]
-	before_action :set_tutorial, only: [:getAllForTutorial]
 
 	# get all attendances
 	def index
@@ -39,7 +37,7 @@ class AttendancesController < ApplicationController
 	private 
 
 	def attendance_params
-		params.permit(:user_id, :tutorial_id, :attended, :tut_date, :tut_time)
+		params.permit(:user_id, :tutorial_id, :attended, :tut_date, :tut_start_time, :tut_end_time)
 	end
 
 	def set_attendance_by_id
