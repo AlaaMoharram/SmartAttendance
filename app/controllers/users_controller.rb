@@ -60,8 +60,8 @@ class UsersController < ApplicationController
 
 	# get all attendances for a certain student for a certain tutorial
 	def getTutAttendances
-		@tutorial = @user.tutorials.where(:name => params[:name]).first 
-		@attendances = @tutorial.attendance.all
+		@tutorial = Tutorial.where(:name => params[:name]).first 
+		@attendances = @user.attendance.where(:tutorial_id => @tutorial.id).all
 		if @attendances
 			render json: @attendances
 		else
@@ -69,7 +69,7 @@ class UsersController < ApplicationController
 		end
 	end
 
-	# update a student's latest attendance record to true 
+	# update a student's latest attendance record to true (attended) 
 	def makeAttended
 		@lastAttendance = @user.attendance.last
 		@lastAttendance.update(:attended => true)
