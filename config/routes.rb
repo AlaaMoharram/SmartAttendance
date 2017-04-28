@@ -1,13 +1,14 @@
 Rails.application.routes.draw do
 
-  # get '/login' => 'sessions#new'
-  # post '/login' => 'sessions#create'
-  # get '/logout' => 'sessions#destroy'
+  # sessions controller
+  post   '/login' => 'sessions#create'
+  delete '/logout' => 'sessions#destroy'
   
   # users controller
   get '/users' => 'users#index'
   get '/users/:username' => 'users#show', constraints: { username: /[0-z\.]+/}
   put '/users/:id' => 'users#update'
+  put '/users/:username/makeAttended' => 'users#makeAttended', constraints: { username: /[0-z\.]+/}
   post '/users' => 'users#create'
   get '/users/:username/activeTutorial' => 'users#getActiveTutorial', constraints: { username: /[0-z\.]+/}
   get '/users/:username/allTutorials' => 'users#getAllTutorials', constraints: { username: /[0-z\.]+/}
@@ -22,6 +23,7 @@ Rails.application.routes.draw do
   get '/tutorials/:name/room' => 'tutorials#findRoom'
   get '/tutorials/:name/students' => 'tutorials#getAllStudents'
   get '/tutorials/:name/attendances' => 'tutorials#getAllAttendances'
+  put '/tutorials/:name/endTime' => 'tutorials#enterEndTime'
 
   # rooms controller
   get '/rooms' => 'rooms#index'
