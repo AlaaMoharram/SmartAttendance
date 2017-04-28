@@ -4,4 +4,7 @@ class User < ApplicationRecord
 	has_many :tutorials, through: UserTutorial
 
 	validates_presence_of :name, :username, :password, :role
+
+	validates :username, uniqueness: true
+	validates :password, uniqueness: true
 end
