@@ -2,7 +2,7 @@ class UsersController < ApplicationController
 
 	skip_before_action :verify_authenticity_token
 	before_action :set_user_by_id, only: [:update]
-	before_action :set_user_by_username, only: [:show, :getActiveTutorial, :getAllTutorials, :getTutAttendances, :makeAttended]
+	before_action :set_user_by_username, only: [:show, :getActiveTutorial, :getAllTutorials, :getTutAttendances, :getLastAttendance]
 
 	def index
 		@allUsers = User.all
@@ -69,14 +69,14 @@ class UsersController < ApplicationController
 		end
 	end
 
-	# update a student's latest attendance record to true (attended) 
-	def makeAttended
-		@lastAttendance = @user.attendance.last
-		@lastAttendance.update(:attended => true)
-		if @lastAttendance.save
-			head :no_content
+	# get last attendance record for the given student for a certain tutorial
+	def getLastAttendance
+		@tutorial = Tutorial.where(:name => params[:name]).first 
+		@lastAttendance = @user.attendance.where(:tutorial_id => @tutorial.id).last
+		if @lastAttendance
+			render json: @lastAttendance
 		else
-			render json: @lastAttendance.errors, status: :unprocessable_entity
+			render json: {}
 		end
 	end
 
