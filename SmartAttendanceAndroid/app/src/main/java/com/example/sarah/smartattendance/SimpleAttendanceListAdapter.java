@@ -39,7 +39,7 @@ public class SimpleAttendanceListAdapter extends ArrayAdapter<Attendance> {
         Attendance attendance = attendances.get(position);
 
         String date = attendance.getTut_date();
-        String time = attendance.getTut_time();
+        String time = attendance.getTut_start_time();
         boolean attended = attendance.isAttended();
         String description = tutorialName + "  " + date + "  " + time;
         String attendendString = attended? "Attended" : "Absent";
@@ -56,7 +56,7 @@ public class SimpleAttendanceListAdapter extends ArrayAdapter<Attendance> {
         Attendance attendance = attendances.get(position);
 
         String date = attendance.getTut_date();
-        String time = attendance.getTut_time();
+        String time = attendance.getTut_start_time();
         boolean attended = attendance.isAttended();
         String description = tutorialName + "  " + date + "  " + time;
         String attendendString = attended? "Attended" : "Absent";
