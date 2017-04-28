@@ -5,6 +5,9 @@ class User < ApplicationRecord
 
 	validates_presence_of :name, :username, :password, :role
 
-	validates :username, uniqueness: true
+	# accepted format: firstname.lastname
+	VALID_USERNAME_REGEX = /\A[a-zA-Z]+\.[a-zA-Z]+\z/i
+
+	validates :username, uniqueness: true, uniqueness: { case_sensitive: false }, format: { with: VALID_USERNAME_REGEX }
 	validates :password, uniqueness: true
 end
