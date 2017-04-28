@@ -59,6 +59,10 @@ public interface OurAPI {
     void generateAttendances(@Path("name") String tutorialName, @Field("name") String tutName, Callback<Attendance> callback);
 
 
+    //ask alaa to provide a route to get tutorial by id
+    @GET("/tutorials/{tutorial_id}")
+    void getTutorial(@Path("tutorial_id") String id, Callback<Tutorial> callback);
+
 
     //room
     @GET("/rooms")
