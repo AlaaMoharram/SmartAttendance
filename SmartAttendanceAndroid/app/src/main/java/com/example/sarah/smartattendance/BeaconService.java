@@ -49,93 +49,108 @@ public class BeaconService extends Service implements BeaconConsumer {
     TimerTask hourlyTask = new TimerTask () {
         @Override
         public void run() {
-//                //check if tutorial is still active
-            Log.d("UPDATE", "ANA HENA!!!!!!!!!!!!!!!!1");
-            api.getActiveTutorial(sharedPreferences.getInt("user_id",-1)+"", new Callback<Tutorial>() {
+        //check if tutorial is still active
+            api.getActiveTutorial(sharedPreferences.getString("username", "") + "", new Callback<Tutorial>() {
                 @Override
                 public void success(Tutorial tutorial, Response response) {
                     //in case the tutorial is active check if I'm inside
-                    activeTutorial = tutorial;
-                    if (sharedPreferences.contains("tutorial_id") &&
-                            activeTutorial.getTutorial_id() == sharedPreferences.getInt("tutorial_id",-1)){
-                        //check if you're still inside!
-                        api.getBeacons(activeTutorial.getRoom_id()+"", new Callback<List<Models.Beacon>>() {
-                            @Override
-                            public void success(List<Models.Beacon> beacons, Response response) {
-                                if(beacons.get(0).equals(beacon1) || beacons.get(1).equals(beacon1)){
-                                    if(beacons.get(1).equals(beacon2) || beacons.get(1).equals(beacon2)){
-                                        //i'm inside!
-                                        editor.putInt("points", sharedPreferences.getInt("points",0)+5);
-                                        Log.d("Points: ", sharedPreferences.getInt("points",-1)+"");
-                                        editor.commit();
+                    if (tutorial.getName() != null) {
+                        activeTutorial = tutorial;
+                        //tutorial is active and its the same as the one in my preferences
+                        // -> check if i am inside and if yes add points
+                        //check if you're inside!
+                        if (sharedPreferences.contains("active_tutorial") &&
+                                activeTutorial.getTutorial_id() == sharedPreferences.getInt("active_tutorial", -1)) {
+                            api.getBeacons(activeTutorial.getRoom_id() + "", new Callback<List<Models.Beacon>>() {
+                                @Override
+                                public void success(List<Models.Beacon> beacons, Response response) {
+                                    if (beacons.get(0).equals(beacon1) || beacons.get(1).equals(beacon1)) {
+                                        if (beacons.get(1).equals(beacon2) || beacons.get(1).equals(beacon2)) {
+                                            //i'm inside!
+                                            editor.putInt("points", sharedPreferences.getInt("points", 0) + 5);
+                                            Log.d("Points: ", sharedPreferences.getInt("points", -1) + "");
+                                            editor.commit();
 
+                                        }
                                     }
                                 }
-                            }
 
-                            @Override
-                            public void failure(RetrofitError error) {
-                                Log.d("Response", "You're a failure in life, get active tutorial");
+                                @Override
+                                public void failure(RetrofitError error) {
+                                    Log.d("Response", "You're a failure in life, get active tutorial");
 
-                            }
-                        });
-                    }
-                    //in case its not active add attendence only if time is 75% inside
-                    else if (sharedPreferences.contains("tutorial_id")){
-                        int startTime, endTime;
-                        //get Attendence total time
-                        api.getTutorial(activeTutorial.getTutorial_id()+"", new Callback<Tutorial>() {
-                            @Override
-                            public void success(Tutorial tutorial, Response response) {
-                                //get total time + check if its attendence worthy
-                                //if it is, add attendence + clear sharedPreferences
-                                int totalTime=0;
-                                if(sharedPreferences.getInt("points", 0) >= 60/100 * totalTime){
-                                    api.updateAttendance(sharedPreferences.getInt("user_id", 0)+"", "true", new Callback<Attendance>() {
-                                        @Override
-                                        public void success(Attendance attendance, Response response) {
-                                            editor.remove("tutorial_id");
-                                            editor.remove("points");
-                                            editor.commit();
-                                        }
-
-                                        @Override
-                                        public void failure(RetrofitError error) {
-                                            Log.d("Response", "You're a failure in life, attendance");
-                                        }
-                                    });
                                 }
-                            }
+                            });
+                        }
+                        //tutorial is active but its not the same as the one in my shared preferences
+                        // so check if i get attendence for that one in my preferences
+                        else if (sharedPreferences.contains("active_tutorial") &&
+                                activeTutorial.getTutorial_id() != sharedPreferences.getInt("active_tutorial", -1)) {
+                            //check if i get attendance for that tutorial in my shared preferences
+                            //retrieve last attendance for that tutorial and check my current points against end and start time
+                            // and add attendance then update active tutorial to the current active tutorial and reset points to 0
+                            editor.putInt("active_tutorial", activeTutorial.getTutorial_id());
+                            editor.putInt("points", 0);
+                            editor.commit();
 
-                            @Override
-                            public void failure(RetrofitError error) {
-                                Log.d("Response", "You're a failure in life, tutorial-fetcher");
+                        } else {
+                            //there is an active tutorial but no active tutorials in my preferences
+                            //so just add it so it matches the current active tutorial
+                            editor.putInt("active_tutorial", activeTutorial.getTutorial_id());
+                            editor.putInt("points", 0);
+                            editor.commit();
+                        }
 
-                            }
-                        });
-                        //clear shared preferences
                     }
-                    //check if we have an active tutorial now
+
+                    //there are no active tutorials but my preferences have an active tutorial then
+                    //it must mean that the tutorial i was in ended
+                    //in case its not active add attendence only if time is 75% inside
                     else {
-                        api.getActiveTutorial(sharedPreferences.getString("user_id", "-1"), new Callback<Tutorial>() {
-                            @Override
-                            public void success(Tutorial tutorial, Response response) {
-                                activeTutorial = tutorial;
-                                editor.putInt("tutorial_id", tutorial.getTutorial_id());
-                                editor.putInt("points", 0);
-                                editor.commit();
-                            }
+                        if (sharedPreferences.contains("active_tutorial")) {
+                            int startTime, endTime;
 
-                            @Override
-                            public void failure(RetrofitError error) {
-                                Log.d("Response", "You're a failure in life, active tutorial");
+                            // i think this one needs to be get last attendance for active tutorial
+                            //then from it we get end time and start time and update accordingly the attendance record
+                            api.getTutorial(activeTutorial.getName() + "", new Callback<Tutorial>() {
+                                @Override
+                                public void success(Tutorial tutorial, Response response) {
+                                    //get total time + check if its attendence worthy
+                                    //if it is, add attendence + clear sharedPreferences
+                                    int totalTime = 0;
+                                    if (sharedPreferences.getInt("points", 0) >= 60 / 100 * totalTime) {
+                                        api.updateAttendance(sharedPreferences.getInt("user_id", 0) + "", "true", new Callback<Attendance>() {
+                                            @Override
+                                            public void success(Attendance attendance, Response response) {
 
-                            }
-                        });
+                                            }
+
+                                            @Override
+                                            public void failure(RetrofitError error) {
+                                                Log.d("Response", "You're a failure in life, attendance");
+                                            }
+                                        });
+                                    }
+                                }
+
+                                @Override
+                                public void failure(RetrofitError error) {
+                                    Log.d("Response", "You're a failure in life, tutorial-fetcher");
+
+                                }
+                            });
+                            editor.remove("active_tutorial");
+                            editor.remove("points");
+                            editor.commit();
+                            //clear shared preferences
+                        }
+
                     }
+
                 }
 
                 @Override
+                //failure for get active tutorial
                 public void failure(RetrofitError error) {
                     Log.d("Response", "Failed fel awel");
                 }

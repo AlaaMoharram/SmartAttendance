@@ -9,14 +9,34 @@ public class Attendance {
     boolean attended;
     String tut_date;
     Integer id;
+    String tut_end_time;
+    String tut_start_time;
 
-    public String getTut_time() {
-        return tut_time;
+    public String getTut_start_time() {
+        return tut_start_time;
     }
 
-    public void setTut_time(String tut_time) {
-        this.tut_time = tut_time;
+    public void setTut_start_time(String tut_start_time) {
+        this.tut_start_time = tut_start_time;
     }
+
+
+    public String getTut_end_time() {
+        return tut_end_time;
+    }
+
+    public void setTut_end_time(String tut_end_time) {
+        this.tut_end_time = tut_end_time;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
 
     public Integer getUser_id() {
         return user_id;
@@ -50,6 +70,5 @@ public class Attendance {
         this.tut_date = tut_date;
     }
 
-    String tut_time;
 
 }

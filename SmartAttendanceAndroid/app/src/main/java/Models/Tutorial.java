@@ -9,6 +9,7 @@ public class Tutorial {
     Integer room_id;
     Integer tutorial_id;
 
+
     public Integer getTutorial_id() {
         return tutorial_id;
     }
