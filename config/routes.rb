@@ -29,7 +29,7 @@ Rails.application.routes.draw do
   get '/rooms' => 'rooms#index'
   get '/rooms/:name' => 'rooms#show', constraints: { name: /[0-z\.]+/}
   post '/rooms' => 'rooms#create'
-  get 'rooms/:name/beacons' => 'rooms#getBeacons', constraints: { name: /[0-z\.]+/}
+  get 'rooms/:id/beacons' => 'rooms#getBeacons', constraints: { name: /[0-z\.]+/}
 
   # beacons controller
   get '/beacons' => 'beacons#index'
