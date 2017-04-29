@@ -53,9 +53,16 @@ public class AttendanceView extends AppCompatActivity {
         api.getAllTutorials(username, new Callback<List<Tutorial>>() {
             @Override
             public void success(List<Tutorial> tutorials, Response response) {
-                Log.d("Success", tutorials.get(tutorials.size() - 1).getName());
-                ArrayAdapter<Tutorial> adapterTutorials = new SimpleTutorialListAdapter(getApplicationContext(), tutorials);
-                dropdownTutorial.setAdapter(adapterTutorials);
+               if(tutorials.size() > 0) {
+                   Log.d("Success", tutorials.get(tutorials.size() - 1).getName());
+                   ArrayAdapter<Tutorial> adapterTutorials = new SimpleTutorialListAdapter(getApplicationContext(), tutorials);
+                   dropdownTutorial.setAdapter(adapterTutorials);
+               }
+                else {
+                   ArrayAdapter<Tutorial> adapterTutorials = new SimpleTutorialListAdapter(getApplicationContext(), new ArrayList<Tutorial>());
+                   dropdownTutorial.setAdapter(adapterTutorials);
+               }
+
 
             }
 
@@ -71,11 +78,18 @@ public class AttendanceView extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 final String tutorialName = ((Tutorial) parentView.getItemAtPosition(position)).getName();
                 editor.putString("SelectedTutorial", tutorialName).commit();
-                api.getTutAttendances(username, tutorialName , new Callback<List<Attendance>>() {
+                api.getTutAttendances(username, tutorialName, new Callback<List<Attendance>>() {
                     @Override
                     public void success(List<Attendance> attendances, Response response) {
-                        ArrayAdapter<Attendance> adapterAttendances = new SimpleAttendanceListAdapter(getApplicationContext(), tutorialName, attendances);
-                        attendance.setAdapter(adapterAttendances);
+                        if(attendances.size() > 0) {
+                            ArrayAdapter<Attendance> adapterAttendances = new SimpleAttendanceListAdapter(getApplicationContext(), tutorialName, attendances);
+                            attendance.setAdapter(adapterAttendances);
+                        }
+                        else {
+                            ArrayAdapter<Attendance> adapterAttendances = new SimpleAttendanceListAdapter(getApplicationContext(), tutorialName, new ArrayList<Attendance>());
+                            attendance.setAdapter(adapterAttendances);
+                        }
+
                     }
 
                     @Override

@@ -1,5 +1,7 @@
 package com.example.sarah.smartattendance;
 
+import android.telecom.Call;
+
 import java.util.List;
 
 import Models.Attendance;
@@ -18,7 +20,9 @@ import retrofit.http.Path;
 public interface OurAPI {
 
     //session
-
+    @FormUrlEncoded
+    @POST("/login")
+    void login(@Field("session[username]") String username, @Field("session[password]") String password, Callback<User> callback);
     //users
 
     @GET("/users/{username}")

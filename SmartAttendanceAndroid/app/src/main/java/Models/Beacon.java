@@ -6,6 +6,16 @@ package Models;
 public class Beacon {
     Integer uuid;
 
+    public String getBeacon_name() {
+        return beacon_name;
+    }
+
+    public void setBeacon_name(String beacon_name) {
+        this.beacon_name = beacon_name;
+    }
+
+    String beacon_name;
+
     public Integer getRoom_id() {
         return room_id;
     }

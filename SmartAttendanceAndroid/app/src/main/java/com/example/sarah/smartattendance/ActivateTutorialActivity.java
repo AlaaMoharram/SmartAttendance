@@ -54,13 +54,13 @@ public class ActivateTutorialActivity extends AppCompatActivity {
 
         activeTutorial = null;
 
-        String username = "fadwa"; //later retrieve from shared preferences
+//        String username = "fadwa"; //later retrieve from shared preferences
 
         RestAdapter adapter = new RestAdapter.Builder().setEndpoint(getResources().getString(R.string.ENDPOINT)).build();
         final OurAPI api = adapter.create(OurAPI.class);
 
         //get active tutorial
-        api.getActiveTutorial(username, new Callback<Tutorial>() {
+        api.getActiveTutorial(settings.getString("username", ""), new Callback<Tutorial>() {
             @Override
             public void success(Tutorial tutorial, Response response) {
                 activeTutorial = tutorial;

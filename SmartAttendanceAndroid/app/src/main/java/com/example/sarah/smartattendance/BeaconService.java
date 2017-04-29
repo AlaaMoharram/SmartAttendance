@@ -19,6 +19,8 @@ import org.altbeacon.beacon.MonitorNotifier;
 import org.altbeacon.beacon.RangeNotifier;
 import org.altbeacon.beacon.Region;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -40,6 +42,7 @@ public class BeaconService extends Service implements BeaconConsumer {
     Beacon beacon1, beacon2;
     OurAPI api;
     Tutorial activeTutorial;
+    public static HashSet<String> beaconNamesDetected;
 
     Timer timer = new Timer ();
     TimerTask hourlyTask = new TimerTask () {
@@ -57,6 +60,7 @@ public class BeaconService extends Service implements BeaconConsumer {
                             editor.putString("active_tutorial", activeTutorial.getName());
                             editor.putInt("points", 0);
                             editor.commit();
+                            beaconNamesDetected = new HashSet<String>();
                         }
                         //tutorial is active and its the same as the one in my preferences
                         // -> check if i am inside and if yes add points
@@ -66,15 +70,16 @@ public class BeaconService extends Service implements BeaconConsumer {
                             api.getBeacons(activeTutorial.getRoom_id() + "", new Callback<List<Models.Beacon>>() {
                                 @Override
                                 public void success(List<Models.Beacon> beacons, Response response) {
-                                    Log.d("Sucess", "entered here");
+                                    Log.d("Success", "entered here");
                                     //we check that beacon ids are the same
                                     //remove true later
-                                    if (true || (beacons.get(0).equals(beacon1) || beacons.get(1).equals(beacon1)) &&
-                                            (beacons.get(1).equals(beacon2) || beacons.get(1).equals(beacon2))) {
+                                    if (beaconNamesDetected.contains(beacons.get(0).getBeacon_name())
+                                            || beaconNamesDetected.contains(beacons.get(1).getBeacon_name())) {
                                         //i'm inside!
                                         editor.putInt("points", sharedPreferences.getInt("points", 0) + 5);
                                         Log.d("Points: ", sharedPreferences.getInt("points", -1) + "");
                                         editor.commit();
+                                        beaconNamesDetected = new HashSet<String>();
                                     }
                                 }
 
@@ -237,6 +242,10 @@ public class BeaconService extends Service implements BeaconConsumer {
         beaconManager.getBeaconParsers().clear();
         beaconManager.getBeaconParsers().add(new BeaconParser().
                 setBeaconLayout("m:0-3=4c000215,i:4-19,i:20-21,i:22-23,p:24-24"));
+        if(beaconNamesDetected==null)
+            beaconNamesDetected = new HashSet<String>();
+//        beaconManager.setAndroidLScanningDisabled(true);
+//        beaconManager.setDebug(true);
         sharedPreferences = getSharedPreferences(PREFS_NAME, 0);
         editor = sharedPreferences.edit();
         RestAdapter adapter = new RestAdapter.Builder().setEndpoint(getResources().getString(R.string.ENDPOINT)).build();
@@ -260,7 +269,7 @@ public class BeaconService extends Service implements BeaconConsumer {
 
         try {
             beaconManager.startRangingBeaconsInRegion(new Region("myRangingUniqueId", null, null, null));
-            //beaconManager.startRangingBeaconsInRegion(new Region());
+//            beaconManager.startRangingBeaconsInRegion(new Region());
         } catch (RemoteException e) {
         }
 
@@ -273,22 +282,32 @@ public class BeaconService extends Service implements BeaconConsumer {
                                                    public void run() {
                                                        try {
                                                            if (beacons.size() > 0) {
-                                                               Beacon beacon = beacons.iterator().next();
-                                                               beacons.iterator().remove();
-                                                               final int rssi = beacon.getRssi();
-                                                               Log.d("RSSI", rssi +"");
-                                                               if(sharedPreferences.getInt("beacon1",0)!= rssi && sharedPreferences.getInt("beacon2",0)!=rssi){
-                                                                   if(sharedPreferences.getInt("beacon1",0)<rssi){
-                                                                       editor.putInt("beacon1", rssi);
-                                                                       editor.commit();
-                                                                       beacon1 = beacon;
-                                                                   }
-                                                                   else if(sharedPreferences.getInt("beacon2", 0)<rssi){
-                                                                       editor.putInt("beacon2", rssi);
-                                                                       editor.commit();
-                                                                       beacon2 = beacon;
+//                                                               if(beaconNamesDetected==null)
+//                                                                   beaconNamesDetected = new HashSet<String>();
+                                                               if(beaconNamesDetected!=null) {
+                                                                   Iterator<Beacon> iter = beacons.iterator();
+                                                                   while(iter.hasNext()) {
+                                                                       beaconNamesDetected.add(iter.next().getBluetoothName());
                                                                    }
                                                                }
+//                                                               Log.d("Success", "Got here");
+//                                                               Iterator<Beacon> it = beacons.iterator();
+//                                                               Beacon beacon = it.next();
+//                                                               Log.d("UUID", String.valueOf(beacon.getServiceUuid()));
+//                                                               final int rssi = beacon.getRssi();
+//                                                               Log.d("RSSI", rssi +"");
+//                                                               if(sharedPreferences.getInt("beacon1",0)!= rssi && sharedPreferences.getInt("beacon2",0)!=rssi){
+//                                                                   if(sharedPreferences.getInt("beacon1",0)<rssi){
+//                                                                       editor.putInt("beacon1", rssi);
+//                                                                       editor.commit();
+//                                                                       beacon1 = beacon;
+//                                                                   }
+//                                                                   else if(sharedPreferences.getInt("beacon2", 0)<rssi){
+//                                                                       editor.putInt("beacon2", rssi);
+//                                                                       editor.commit();
+//                                                                       beacon2 = beacon;
+//                                                                   }
+//                                                               }
                                                            }
 
                                                        } catch (Exception e) {
