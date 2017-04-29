@@ -169,6 +169,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
         editor.putString("username", "sarah").commit();
+
         startActivity(new Intent(getApplicationContext(), AttendanceView.class));
         boolean cancel = false;
         View focusView = null;

@@ -80,7 +80,7 @@ public interface OurAPI {
 
     @FormUrlEncoded
     @PUT("/attendances/{id}")
-    void updateAttendance(@Path("id") String id, @Field("attended") String attended, Callback<Attendance> callback);
+    void updateAttendance(@Path("id") String id, @Field("attended") boolean attended, Callback<Attendance> callback);
 
     @FormUrlEncoded
     @POST ("/attendances")

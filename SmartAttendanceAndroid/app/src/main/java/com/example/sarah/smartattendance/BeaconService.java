@@ -69,8 +69,8 @@ public class BeaconService extends Service implements BeaconConsumer {
                                     Log.d("Sucess", "entered here");
                                     //we check that beacon ids are the same
                                     //remove true later
-                                    if ( true || (beacons.get(0).equals(beacon1) || beacons.get(1).equals(beacon1)) &&
-                                        (beacons.get(1).equals(beacon2) || beacons.get(1).equals(beacon2))) {
+                                    if (true || (beacons.get(0).equals(beacon1) || beacons.get(1).equals(beacon1)) &&
+                                            (beacons.get(1).equals(beacon2) || beacons.get(1).equals(beacon2))) {
                                         //i'm inside!
                                         editor.putInt("points", sharedPreferences.getInt("points", 0) + 5);
                                         Log.d("Points: ", sharedPreferences.getInt("points", -1) + "");
@@ -92,9 +92,59 @@ public class BeaconService extends Service implements BeaconConsumer {
                             //check if i get attendance for that tutorial in my shared preferences
                             //retrieve last attendance for that tutorial and check my current points against end and start time
                             // and add attendance then update active tutorial to the current active tutorial and reset points to 0
-                            editor.putString("active_tutorial", activeTutorial.getName());
-                            editor.putInt("points", 0);
-                            editor.commit();
+
+                            api.getTutorial(sharedPreferences.getString("active_tutorial", ""), new Callback<Tutorial>() {
+                                @Override
+                                public void success(final Tutorial tutorial, Response response) {
+                                    //get total time + check if its attendence worthy
+                                    //if it is, add attendence + clear sharedPreferences
+                                    Log.d("Success", "I have found the tutorial");
+                                    api.getLastAttendanceRecordForTutorial(sharedPreferences.getString("username", ""), tutorial.getName(), new Callback<Attendance>() {
+                                        @Override
+                                        public void success(Attendance attendance, Response response) {
+                                            String startTime = attendance.getTut_start_time();
+                                            String endTime = attendance.getTut_end_time();
+                                            String[] timeStart = startTime.split(":");
+                                            int hourS = Integer.parseInt(timeStart[0].trim());
+                                            int minS = Integer.parseInt(timeStart[1].trim());
+                                            String[] timeEnd = endTime.split(":");
+                                            int hourE = Integer.parseInt(timeEnd[0].trim());
+                                            int minE = Integer.parseInt(timeEnd[1].trim());
+                                            int totalTime = ((hourE - hourS) * 60) + ((minE - minS) * 60);
+                                            boolean attended = sharedPreferences.getInt("points", 0) >= (60 / 100 * totalTime);
+                                            if (attended) {
+                                                api.updateAttendance(String.valueOf(attendance.getId()), true, new Callback<Attendance>() {
+                                                    @Override
+                                                    public void success(Attendance attendance, Response response) {
+                                                        Log.d("Attended", "Congrats");
+                                                    }
+
+                                                    @Override
+                                                    public void failure(RetrofitError error) {
+
+                                                    }
+                                                });
+                                            }
+                                            editor.putString("active_tutorial", activeTutorial.getName());
+                                            editor.putInt("points", 0);
+                                            editor.commit();
+//                                                Log.d("Attendance time", attendance.getTut_start_time());
+                                        }
+
+                                        @Override
+                                        public void failure(RetrofitError error) {
+
+                                        }
+                                    });
+
+                                }
+
+                                @Override
+                                public void failure(RetrofitError error) {
+                                    Log.d("Response", "You're a failure in life, tutorial-fetcher");
+
+                                }
+                            });
 
                         }
 
@@ -105,30 +155,52 @@ public class BeaconService extends Service implements BeaconConsumer {
                     //in case its not active add attendence only if time is 75% inside
                     else {
                         if (sharedPreferences.contains("active_tutorial")) {
-                            int startTime, endTime;
-
                             // i think this one needs to be get last attendance for active tutorial
                             //then from it we get end time and start time and update accordingly the attendance record
                             api.getTutorial(sharedPreferences.getString("active_tutorial", ""), new Callback<Tutorial>() {
                                 @Override
-                                public void success(Tutorial tutorial, Response response) {
+                                public void success(final Tutorial tutorial, Response response) {
                                     //get total time + check if its attendence worthy
                                     //if it is, add attendence + clear sharedPreferences
                                     Log.d("Success", "I have found the tutorial");
-                                    int totalTime = 0;
-                                    if (sharedPreferences.getInt("points", 0) >= 60 / 100 * totalTime) {
-                                        api.updateAttendance(sharedPreferences.getInt("user_id", 0) + "", "true", new Callback<Attendance>() {
-                                            @Override
-                                            public void success(Attendance attendance, Response response) {
+                                    api.getLastAttendanceRecordForTutorial(sharedPreferences.getString("username", ""), tutorial.getName(), new Callback<Attendance>() {
+                                        @Override
+                                        public void success(Attendance attendance, Response response) {
+                                            String startTime = attendance.getTut_start_time();
+                                            String endTime = attendance.getTut_end_time();
+                                            String[] timeStart = startTime.split(":");
+                                            int hourS = Integer.parseInt(timeStart[0].trim());
+                                            int minS = Integer.parseInt(timeStart[1].trim());
+                                            String[] timeEnd = endTime.split(":");
+                                            int hourE = Integer.parseInt(timeEnd[0].trim());
+                                            int minE = Integer.parseInt(timeEnd[1].trim());
+                                            int totalTime = ((hourE - hourS) * 60) + ((minE - minS) * 60);
+                                            boolean attended = sharedPreferences.getInt("points", 0) >= (60 / 100 * totalTime);
+                                            if (attended) {
+                                                api.updateAttendance(String.valueOf(attendance.getId()), true, new Callback<Attendance>() {
+                                                    @Override
+                                                    public void success(Attendance attendance, Response response) {
+                                                        Log.d("Attended", "Congrats");
+                                                    }
 
-                                            }
+                                                    @Override
+                                                    public void failure(RetrofitError error) {
 
-                                            @Override
-                                            public void failure(RetrofitError error) {
-                                                Log.d("Response", "You're a failure in life, attendance");
+                                                    }
+                                                });
                                             }
-                                        });
-                                    }
+                                            editor.remove("active_tutorial");
+                                            editor.remove("points");
+                                            editor.commit();
+//                                                Log.d("Attendance time", attendance.getTut_start_time());
+                                        }
+
+                                        @Override
+                                        public void failure(RetrofitError error) {
+
+                                        }
+                                    });
+
                                 }
 
                                 @Override
@@ -137,9 +209,7 @@ public class BeaconService extends Service implements BeaconConsumer {
 
                                 }
                             });
-                            editor.remove("active_tutorial");
-                            editor.remove("points");
-                            editor.commit();
+
                             //clear shared preferences
                         }
 
