@@ -49,13 +49,20 @@ public class TAActivity extends AppCompatActivity {
 
         settings = getSharedPreferences(PREFS_NAME, 0);
         editor = settings.edit();
-        username = "fadwa"; //should replace that later
+        username = settings.getString("username", ""); //should replace that later
 
         api.getAllTutorials(username, new Callback<List<Tutorial>>() {
             @Override
             public void success(List<Tutorial> tutorials, Response response) {
-                ArrayAdapter<Tutorial> adapterTutorials = new SimpleTutorialListAdapter(getApplicationContext(), tutorials);
-                dropdownTutorial.setAdapter(adapterTutorials);
+                if(tutorials.size()>0) {
+                    ArrayAdapter<Tutorial> adapterTutorials = new SimpleTutorialListAdapter(getApplicationContext(), tutorials);
+                    dropdownTutorial.setAdapter(adapterTutorials);
+                }
+                else {
+                    ArrayAdapter<Tutorial> adapterTutorials = new SimpleTutorialListAdapter(getApplicationContext(), new ArrayList<Tutorial>());
+                    dropdownTutorial.setAdapter(adapterTutorials);
+                }
+
 
             }
 
@@ -71,8 +78,15 @@ public class TAActivity extends AppCompatActivity {
         api.getAllRooms(new Callback<List<Room>>() {
             @Override
             public void success(List<Room> rooms, Response response) {
-                ArrayAdapter<Room> adapterRooms = new SimpleRoomListAdapter(getApplicationContext(), rooms);
-                dropdownRoom.setAdapter(adapterRooms);
+                if(rooms.size() > 0) {
+                    ArrayAdapter<Room> adapterRooms = new SimpleRoomListAdapter(getApplicationContext(), rooms);
+                    dropdownRoom.setAdapter(adapterRooms);
+                }
+                else {
+                    ArrayAdapter<Room> adapterRooms = new SimpleRoomListAdapter(getApplicationContext(), new ArrayList<Room>());
+                    dropdownRoom.setAdapter(adapterRooms);
+                }
+
             }
 
             @Override

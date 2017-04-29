@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170428133606) do
+ActiveRecord::Schema.define(version: 20170429155653) do
 
   create_table "attendances", force: :cascade do |t|
     t.integer  "user_id"
@@ -28,8 +28,9 @@ ActiveRecord::Schema.define(version: 20170428133606) do
   create_table "beacons", force: :cascade do |t|
     t.integer  "uuid"
     t.integer  "room_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+    t.string   "beacon_name"
     t.index ["room_id"], name: "index_beacons_on_room_id"
   end
 
