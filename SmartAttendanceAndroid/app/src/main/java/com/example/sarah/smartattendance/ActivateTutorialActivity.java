@@ -15,6 +15,9 @@ import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 import Models.Attendance;
 import Models.Room;
 import Models.Tutorial;
@@ -112,6 +115,21 @@ public class ActivateTutorialActivity extends AppCompatActivity {
                 api.updateTutorialStatus(SelectedtutorialName, false, new Callback<Tutorial>() {
                     @Override
                     public void success(Tutorial tutorial, Response response) {
+                        Calendar c = Calendar.getInstance();
+                        SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
+                        String formattedDate = df.format(c.getTime());
+//                        Log.d("Time", formattedDate);
+                        api.AddTutorialEndTime(SelectedtutorialName, formattedDate, new Callback<Attendance>() {
+                            @Override
+                            public void success(Attendance attendance, Response response) {
+//                                Log.d("Sucess Adding End Time", "Added");
+                            }
+
+                            @Override
+                            public void failure(RetrofitError error) {
+
+                            }
+                        });
                         CharSequence text = "Tutorial: " + SelectedtutorialName + " is now  Inactive";
                         int duration = Toast.LENGTH_SHORT;
                         Toast toast = Toast.makeText(context, text, duration);

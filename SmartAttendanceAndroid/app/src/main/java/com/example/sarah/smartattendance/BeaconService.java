@@ -19,13 +19,9 @@ import org.altbeacon.beacon.MonitorNotifier;
 import org.altbeacon.beacon.RangeNotifier;
 import org.altbeacon.beacon.Region;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import Models.Attendance;
 import Models.Tutorial;
@@ -56,22 +52,29 @@ public class BeaconService extends Service implements BeaconConsumer {
                     //in case the tutorial is active check if I'm inside
                     if (tutorial.getName() != null) {
                         activeTutorial = tutorial;
+
+                        if (!sharedPreferences.contains("active_tutorial")) {
+                            editor.putString("active_tutorial", activeTutorial.getName());
+                            editor.putInt("points", 0);
+                            editor.commit();
+                        }
                         //tutorial is active and its the same as the one in my preferences
                         // -> check if i am inside and if yes add points
                         //check if you're inside!
                         if (sharedPreferences.contains("active_tutorial") &&
-                                activeTutorial.getTutorial_id() == sharedPreferences.getInt("active_tutorial", -1)) {
+                                activeTutorial.getName().equals(sharedPreferences.getString("active_tutorial", ""))) {
                             api.getBeacons(activeTutorial.getRoom_id() + "", new Callback<List<Models.Beacon>>() {
                                 @Override
                                 public void success(List<Models.Beacon> beacons, Response response) {
-                                    if (beacons.get(0).equals(beacon1) || beacons.get(1).equals(beacon1)) {
-                                        if (beacons.get(1).equals(beacon2) || beacons.get(1).equals(beacon2)) {
-                                            //i'm inside!
-                                            editor.putInt("points", sharedPreferences.getInt("points", 0) + 5);
-                                            Log.d("Points: ", sharedPreferences.getInt("points", -1) + "");
-                                            editor.commit();
-
-                                        }
+                                    Log.d("Sucess", "entered here");
+                                    //we check that beacon ids are the same
+                                    //remove true later
+                                    if ( true || (beacons.get(0).equals(beacon1) || beacons.get(1).equals(beacon1)) &&
+                                        (beacons.get(1).equals(beacon2) || beacons.get(1).equals(beacon2))) {
+                                        //i'm inside!
+                                        editor.putInt("points", sharedPreferences.getInt("points", 0) + 5);
+                                        Log.d("Points: ", sharedPreferences.getInt("points", -1) + "");
+                                        editor.commit();
                                     }
                                 }
 
@@ -85,20 +88,14 @@ public class BeaconService extends Service implements BeaconConsumer {
                         //tutorial is active but its not the same as the one in my shared preferences
                         // so check if i get attendence for that one in my preferences
                         else if (sharedPreferences.contains("active_tutorial") &&
-                                activeTutorial.getTutorial_id() != sharedPreferences.getInt("active_tutorial", -1)) {
+                                !activeTutorial.getId().equals(sharedPreferences.getString("active_tutorial", ""))) {
                             //check if i get attendance for that tutorial in my shared preferences
                             //retrieve last attendance for that tutorial and check my current points against end and start time
                             // and add attendance then update active tutorial to the current active tutorial and reset points to 0
-                            editor.putInt("active_tutorial", activeTutorial.getTutorial_id());
+                            editor.putString("active_tutorial", activeTutorial.getName());
                             editor.putInt("points", 0);
                             editor.commit();
 
-                        } else {
-                            //there is an active tutorial but no active tutorials in my preferences
-                            //so just add it so it matches the current active tutorial
-                            editor.putInt("active_tutorial", activeTutorial.getTutorial_id());
-                            editor.putInt("points", 0);
-                            editor.commit();
                         }
 
                     }
@@ -112,11 +109,12 @@ public class BeaconService extends Service implements BeaconConsumer {
 
                             // i think this one needs to be get last attendance for active tutorial
                             //then from it we get end time and start time and update accordingly the attendance record
-                            api.getTutorial(activeTutorial.getName() + "", new Callback<Tutorial>() {
+                            api.getTutorial(sharedPreferences.getString("active_tutorial", ""), new Callback<Tutorial>() {
                                 @Override
                                 public void success(Tutorial tutorial, Response response) {
                                     //get total time + check if its attendence worthy
                                     //if it is, add attendence + clear sharedPreferences
+                                    Log.d("Success", "I have found the tutorial");
                                     int totalTime = 0;
                                     if (sharedPreferences.getInt("points", 0) >= 60 / 100 * totalTime) {
                                         api.updateAttendance(sharedPreferences.getInt("user_id", 0) + "", "true", new Callback<Attendance>() {

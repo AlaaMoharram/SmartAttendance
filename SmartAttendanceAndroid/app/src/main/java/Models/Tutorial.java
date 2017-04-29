@@ -7,15 +7,15 @@ public class Tutorial {
     String name;
     boolean isActive;
     Integer room_id;
-    Integer tutorial_id;
+    Integer id;
 
 
-    public Integer getTutorial_id() {
-        return tutorial_id;
+    public Integer getId() {
+        return id;
     }
 
-    public void setTutorial_id(Integer tutorial_id) {
-        this.tutorial_id = tutorial_id;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public Integer getRoom_id() {

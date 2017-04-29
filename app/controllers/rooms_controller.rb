@@ -35,7 +35,7 @@ class RoomsController < ApplicationController
 
 	# get all beacons for a certain room
 	def getBeacons
-		@room = Room.where(:name => params[:name]).take
+		@room = Room.where(:id=> params[:id]).take
 		@beacons = @room.beacon.all
 		render json: @beacons
 	end
@@ -44,7 +44,7 @@ class RoomsController < ApplicationController
 	private
 
 	def room_params
-		params.permit(:name)
+		params.permit(:name, :id)
 	end
 
 end
