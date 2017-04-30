@@ -184,6 +184,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             @Override
             public void success(User user, Response response) {
                 editor.putString("username", user.getUsername()).commit();
+//                editor.remove("points").commit();
                 if(user.getRole()==1) {
                     startActivity(new Intent(getApplicationContext(), TAActivity.class));
                 }

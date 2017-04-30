@@ -19,9 +19,11 @@ import org.altbeacon.beacon.MonitorNotifier;
 import org.altbeacon.beacon.RangeNotifier;
 import org.altbeacon.beacon.Region;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -43,12 +45,14 @@ public class BeaconService extends Service implements BeaconConsumer {
     OurAPI api;
     Tutorial activeTutorial;
     public static HashSet<String> beaconNamesDetected;
+    public static PriorityQueue<Beacon> beaconsDetected;
+    public static boolean foundBeacons = false;
 
     Timer timer = new Timer ();
     TimerTask hourlyTask = new TimerTask () {
         @Override
         public void run() {
-        //check if tutorial is still active
+            //check if tutorial is still active
             api.getActiveTutorial(sharedPreferences.getString("username", "") + "", new Callback<Tutorial>() {
                 @Override
                 public void success(Tutorial tutorial, Response response) {
@@ -71,21 +75,31 @@ public class BeaconService extends Service implements BeaconConsumer {
                                 @Override
                                 public void success(List<Models.Beacon> beacons, Response response) {
                                     Log.d("Success", "entered here");
-                                    //we check that beacon ids are the same
-                                    //remove true later
-                                    if (beaconNamesDetected.contains(beacons.get(0).getBeacon_name())
-                                            || beaconNamesDetected.contains(beacons.get(1).getBeacon_name())) {
-                                        //i'm inside!
-                                        editor.putInt("points", sharedPreferences.getInt("points", 0) + 5);
-                                        Log.d("Points: ", sharedPreferences.getInt("points", -1) + "");
-                                        editor.commit();
-                                        beaconNamesDetected = new HashSet<String>();
+                                    if (beaconsDetected.size() >= 2) {
+                                        Beacon firstBeacon = beaconsDetected.poll();
+                                        String firstBeaconName = firstBeacon.getId1().toString() + firstBeacon.getId2().toString() + firstBeacon.getId3().toString();
+                                        Beacon secondBeacon = beaconsDetected.poll();
+                                        String secondBeaconName = secondBeacon.getId1().toString() + secondBeacon.getId2().toString() + secondBeacon.getId3().toString();
+
+                                        Models.Beacon roomBeacon1 = beacons.get(0);
+                                        Models.Beacon roomBeacon2 = beacons.get(1);
+                                        if ((firstBeaconName.equals(roomBeacon1.getBeacon_name())
+                                                || firstBeaconName.equals(roomBeacon2.getBeacon_name()))
+//                                                ) {
+                                                  &&   (secondBeaconName.equals(roomBeacon1.getBeacon_name()) ||
+                                                      secondBeaconName.equals(roomBeacon2.getBeacon_name()))) {
+                                            editor.putInt("points", sharedPreferences.getInt("points", 0) + 5);
+                                            Log.d("Points: ", sharedPreferences.getInt("points", -1) + "");
+                                            editor.commit();
+                                            beaconNamesDetected = new HashSet<String>();
+                                        }
+
                                     }
                                 }
 
                                 @Override
                                 public void failure(RetrofitError error) {
-                                    Log.d("Response", "You're a failure in life, get active tutorial");
+                                    Log.d("Response", "You're a failure in life, get active tutorial" + error.toString());
 
                                 }
                             });
@@ -138,7 +152,7 @@ public class BeaconService extends Service implements BeaconConsumer {
 
                                         @Override
                                         public void failure(RetrofitError error) {
-
+                                            Log.d("Failure", error.toString());
                                         }
                                     });
 
@@ -242,8 +256,17 @@ public class BeaconService extends Service implements BeaconConsumer {
         beaconManager.getBeaconParsers().clear();
         beaconManager.getBeaconParsers().add(new BeaconParser().
                 setBeaconLayout("m:0-3=4c000215,i:4-19,i:20-21,i:22-23,p:24-24"));
-        if(beaconNamesDetected==null)
+        if(beaconNamesDetected==null || beaconNamesDetected.size()==0) {
             beaconNamesDetected = new HashSet<String>();
+            beaconsDetected = new PriorityQueue<>(10, new Comparator<Beacon>() {
+                @Override
+                public int compare(Beacon lhs, Beacon rhs) {
+                    if(lhs.getRssi() < rhs.getRssi()) return 1;
+                    return 0;
+                }
+            });
+        }
+
 //        beaconManager.setAndroidLScanningDisabled(true);
 //        beaconManager.setDebug(true);
         sharedPreferences = getSharedPreferences(PREFS_NAME, 0);
@@ -264,15 +287,14 @@ public class BeaconService extends Service implements BeaconConsumer {
 
     @Override
     public void onBeaconServiceConnect() {
-        Log.d("Sucess", "Service Connected");
+        Log.d("Success", "Service Connected");
+//        if(beaconsDetected!= null && beaconsDetected.size() >=1)
         timer.scheduleAtFixedRate(hourlyTask, 1, 300000);
 
         try {
             beaconManager.startRangingBeaconsInRegion(new Region("myRangingUniqueId", null, null, null));
-//            beaconManager.startRangingBeaconsInRegion(new Region());
         } catch (RemoteException e) {
         }
-
 
         beaconManager.setRangeNotifier(new RangeNotifier() {
                                            @Override
@@ -282,32 +304,22 @@ public class BeaconService extends Service implements BeaconConsumer {
                                                    public void run() {
                                                        try {
                                                            if (beacons.size() > 0) {
+
 //                                                               if(beaconNamesDetected==null)
 //                                                                   beaconNamesDetected = new HashSet<String>();
-                                                               if(beaconNamesDetected!=null) {
+                                                               beaconsDetected.clear();
+                                                               beaconNamesDetected = new HashSet<String>();
+                                                               if (beaconNamesDetected != null) {
                                                                    Iterator<Beacon> iter = beacons.iterator();
-                                                                   while(iter.hasNext()) {
-                                                                       beaconNamesDetected.add(iter.next().getBluetoothName());
+                                                                   while (iter.hasNext()) {
+                                                                       Beacon beacon = iter.next();
+                                                                       String beaconName = beacon.getId1().toString()+beacon.getId2().toString()+beacon.getId3().toString();
+                                                                       if (!beaconNamesDetected.contains(beaconName)) {
+                                                                           beaconNamesDetected.add(beaconName);
+                                                                           beaconsDetected.add(beacon);
+                                                                       }
                                                                    }
                                                                }
-//                                                               Log.d("Success", "Got here");
-//                                                               Iterator<Beacon> it = beacons.iterator();
-//                                                               Beacon beacon = it.next();
-//                                                               Log.d("UUID", String.valueOf(beacon.getServiceUuid()));
-//                                                               final int rssi = beacon.getRssi();
-//                                                               Log.d("RSSI", rssi +"");
-//                                                               if(sharedPreferences.getInt("beacon1",0)!= rssi && sharedPreferences.getInt("beacon2",0)!=rssi){
-//                                                                   if(sharedPreferences.getInt("beacon1",0)<rssi){
-//                                                                       editor.putInt("beacon1", rssi);
-//                                                                       editor.commit();
-//                                                                       beacon1 = beacon;
-//                                                                   }
-//                                                                   else if(sharedPreferences.getInt("beacon2", 0)<rssi){
-//                                                                       editor.putInt("beacon2", rssi);
-//                                                                       editor.commit();
-//                                                                       beacon2 = beacon;
-//                                                                   }
-//                                                               }
                                                            }
 
                                                        } catch (Exception e) {
@@ -317,30 +329,8 @@ public class BeaconService extends Service implements BeaconConsumer {
 
                                                });
                                                thread.start();
-
-
                                            }
                                        }
-
-        );
-        beaconManager.setMonitorNotifier(new
-
-                                                 MonitorNotifier() {
-                                                     @Override
-                                                     public void didEnterRegion(Region region) {
-                                                         Log.i(TAG, "I just saw an beacon for the first time!");
-                                                     }
-
-                                                     @Override
-                                                     public void didExitRegion(Region region) {
-                                                         Log.i(TAG, "I no longer see an beacon");
-                                                     }
-
-                                                     @Override
-                                                     public void didDetermineStateForRegion(int state, Region region) {
-                                                         Log.i(TAG, "I have just switched from seeing/not seeing beacons: " + state);
-                                                     }
-                                                 }
 
         );
     }
@@ -348,3 +338,4 @@ public class BeaconService extends Service implements BeaconConsumer {
 
 
 }
+
