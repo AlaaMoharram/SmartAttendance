@@ -8,5 +8,6 @@ class User < ApplicationRecord
 	# accepted format: firstname.lastname
 	VALID_USERNAME_REGEX = /\A[a-zA-Z]+\.[a-zA-Z]+\z/i
 
-	validates :username, uniqueness: true, uniqueness: { case_sensitive: false }, format: { with: VALID_USERNAME_REGEX }
+	validates :username, format: { with: VALID_USERNAME_REGEX }
+	validates_uniqueness_of :username, :case_sensitive => false
 end
